@@ -1,2 +1,3 @@
-# SailsTraining
-Sails.js training repository.
+# testProject
+
+a [Sails](http://sailsjs.org) application

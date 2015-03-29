@@ -1,3 +1,3 @@
 module.exports.myconf = {
-    projectsroot: "/home/nakata0705/sails/SailsTraining/projects"
+    projectsroot: "/home/nakata0705/sails/SailsTraining/assets/projects"
 }

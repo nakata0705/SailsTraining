@@ -10,9 +10,9 @@ module.exports = {
   tableName: "projects",
 
   attributes: {
-    hash: { type: "string", unique: true, columnName: "hash" },
+    hash: { type: "string", unique: true, columnName: "hash", required: true },
     name: { type: "string", columnName: "name", defaultsTo: "New Project", columnName: "name" },
-    owner: { model: "user" }
+    owner: { model: "user", required: true }
   }
 };
 

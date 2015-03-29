@@ -9,24 +9,28 @@ var projectdir = "projects";
 
 var uuid = require('node-uuid');
 var crypto = require('crypto');
-var fs = require('fs');
-var mkdirp = require('mkdirp');
-var rimraf = require('rimraf');
 var FileController = require('./FileController');
 
 function findProject(hash, callback) {
     if (hash == undefined) {
-        callback(null, undefined);
+        callback({ error: "E_NOTSPECIFIED" }, undefined);
     }
     else {
-        Project.find({hash: hash}).exec(function (err, projects) {
+        Project.findOne({hash: hash}).exec(function (err, project) {
+            console.log("Project.find returns %o", project);
+            console.log("Project.find returns %o", err);
             if (err) {
+                console.log("returning err");
                 callback(err, undefined);
             }
-            else if (projects.length != 1) {
-                callback(err, undefined);
+            else if (project) {
+                console.log("returning project");
+                callback(undefined, project);
             }
-            callback(null, projects[0]);
+            else {
+                console.log("returning notfound");
+                callback({ error: "E_NOTFOUND" }, undefined);
+            }
         });
     }
 }
@@ -89,43 +93,26 @@ function createProject (req, res) {
             console.error(err);
             res.json(500, {result: "error", error: err});
         }
-        if (projects.length > 0) {
+        else if (projects.length > 0) {
             console.log("Project already exists.");
             res.json(500, projects);
         }
-        Project.create({hash: hash, name: newname, owner: req.session.passport.user}).exec(function (err, project) {
-            if (err) {
-                console.error(err);
-                res.json(500, {result: "error", error: err});
-            }
+        else {
+            Project.create({hash: hash, name: newname, owner: req.session.passport.user}).exec(function (err, project) {
+                if (err) {
+                    console.error(err);
+                    res.json(500, {result: "error", error: err});
+                }
 
-            console.log("calling File.create");
+                req.options.parenthash = undefined;
+                req.options.projecthash = hash;
+                req.options.isdir = true;
 
-            req.options.parenthash = undefined;
-            req.options.project = hash;
-            req.options.isdir = true;
-
-            FileController.create(req, res);
-            /*fs.realpath('./', {}, function (err, resolvedPath) {
-             if (err) {
-             console.error(err);
-             res.json(500, {result: "error", error: err});
-             }
-             mkdirp(resolvedPath + "/" + projectdir + "/" + hash, function (err) {
-             if (err) {
-             console.error(err);
-             Project.destroy({hash: hash}).exec(function (err) {
-             if (err) {
-             console.error(err);
-             res.json(500, {result: "error", error: err});
-             }
-             res.json(500, {result: "error", error: err});
-             });
-             }
-             res.json(200, {result: "success"});
-             });
-             });*/
-        });
+                // This function returns JSON response
+                console.log("FileController.create");
+                FileController.create(req, res);
+            });
+        }
     });
 }
 

@@ -6,13 +6,12 @@
 */
 
 module.exports = {
-  connection: "localDiskDb",
-  tableName: "projects",
 
+  tableName: "projects",
   attributes: {
     hash: { type: "string", unique: true, columnName: "hash", required: true },
     name: { type: "string", columnName: "name", defaultsTo: "New Project", columnName: "name" },
     owner: { model: "user", required: true }
   }
-};
 
+}

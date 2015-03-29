@@ -84,34 +84,45 @@ function deleteProject(req, res) {
     });
 }
 
-function createProject (req, res) {
-    var newname = req.param('name') || req.options.name;
-    var hash = crypto.createHash('md5').update(uuid.v1()).digest('hex');
-
-    Project.find({hash: hash}).exec(function (err, projects) {
+function createProject(name, hash, owner, callback) {
+    Project.findOne({hash: hash}).exec(function (err, project) {
         if (err) {
-            console.error(err);
-            res.json(500, {result: "error", error: err});
+            callback(err, undefined);
         }
-        else if (projects.length > 0) {
-            console.log("Project already exists.");
-            res.json(500, projects);
+        else if (project) {
+            callback({ error: "E_ALREADYEXISTS", summary: "A project with the specified hash already exists."}, project);
         }
         else {
-            Project.create({hash: hash, name: newname, owner: req.session.passport.user}).exec(function (err, project) {
+            Project.create({hash: hash, name: name, owner: owner}).exec(function (err, project) {
                 if (err) {
-                    console.error(err);
-                    res.json(500, {result: "error", error: err});
+                    callback(err, undefined);
                 }
 
-                req.options.parenthash = undefined;
-                req.options.projecthash = hash;
-                req.options.isdir = true;
-
-                // This function returns JSON response
-                console.log("FileController.create");
-                FileController.create(req, res);
+                FileController.createFile(name, 'directory', owner, undefined, hash, function(err, file) {
+                    if (err) {
+                        callback(err, undefined);
+                    }
+                    else {
+                        callback(undefined, project);
+                    }
+                });
             });
+        }
+    });
+}
+
+function create(req, res) {
+    var newname = req.param('name') || req.options.name;
+    var hash = crypto.createHash('md5').update(uuid.v1()).digest('hex');
+    var owner = req.session.passport.user || req.options.user;
+
+    createProject(newname, hash, owner, function(err, project) {
+        if (err) {
+            console.error(err);
+            res.json(500, err);
+        }
+        else {
+            res.json(200, project);
         }
     });
 }
@@ -120,7 +131,8 @@ var ProjectController = {
     find: findProject,
     list: listProject,
     delete: deleteProject,
-    create: createProject
+    create: create,
+    createProject: createProject
 }
 
 module.exports = ProjectController;

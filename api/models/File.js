@@ -10,6 +10,7 @@ var mkdirp = require('mkdirp');
 var rimraf = require('rimraf');
 
 module.exports = {
+
     attributes: {
         hash: {type: "string", unique: true, required: true},
         name: {type: "string", columnName: "name", defaultsTo: "New File"},
@@ -45,4 +46,5 @@ module.exports = {
                 });
         }
     }
+
 }

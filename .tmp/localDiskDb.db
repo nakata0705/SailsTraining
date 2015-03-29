@@ -36,6 +36,18 @@
         "createdAt": "2015-03-29T17:30:56.287Z",
         "updatedAt": "2015-03-29T17:30:56.287Z",
         "id": 39
+      },
+      {
+        "hash": "dc441144d9e933638a22ddbd41253865",
+        "name": "test",
+        "type": "directory",
+        "path": "/home/nakata0705/sails/SailsTraining/assets/projects/dc441144d9e933638a22ddbd41253865",
+        "owner": 19,
+        "parent": null,
+        "project": 28,
+        "createdAt": "2015-03-29T20:02:48.883Z",
+        "updatedAt": "2015-03-29T20:02:48.885Z",
+        "id": 40
       }
     ],
     "passport": [
@@ -43,12 +55,12 @@
         "identifier": "109188779012179055842",
         "protocol": "oauth2",
         "tokens": {
-          "accessToken": "ya29.RQHvrgUns8QRgLqiMiTE1wzmuqoRsJyiaqx_7GEsa5KsQrGFcDc6VJbqCJs_9p8Cs0hsd7Rnfw0n_w"
+          "accessToken": "ya29.RQGhTJJIVUJKG-ej_goezJks_Ky0H5Y42-Xd4eR6CbZ1Z7U9jtDf2yo-XZL66xs9htcOuZsgFe0BJA"
         },
         "provider": "google",
         "user": 19,
         "createdAt": "2015-03-29T17:25:44.190Z",
-        "updatedAt": "2015-03-29T17:30:48.825Z",
+        "updatedAt": "2015-03-29T20:02:47.251Z",
         "id": 19
       }
     ],
@@ -60,6 +72,30 @@
         "createdAt": "2015-03-29T17:26:13.742Z",
         "updatedAt": "2015-03-29T17:26:13.742Z",
         "id": 25
+      },
+      {
+        "hash": "a7d2de9d43e5461cb15c48393eef266b",
+        "name": "test",
+        "owner": 19,
+        "createdAt": "2015-03-29T20:01:42.498Z",
+        "updatedAt": "2015-03-29T20:01:42.498Z",
+        "id": 26
+      },
+      {
+        "hash": "1c207921a6ecaa2c5cda19b67e4458f1",
+        "name": "test",
+        "owner": 19,
+        "createdAt": "2015-03-29T20:02:32.792Z",
+        "updatedAt": "2015-03-29T20:02:32.792Z",
+        "id": 27
+      },
+      {
+        "hash": "eaedcdcf9107664a667a95fb43f7960b",
+        "name": "test",
+        "owner": 19,
+        "createdAt": "2015-03-29T20:02:48.856Z",
+        "updatedAt": "2015-03-29T20:02:48.856Z",
+        "id": 28
       }
     ],
     "user": [
@@ -214,13 +250,13 @@
   },
   "counters": {
     "file": {
-      "id": 39
+      "id": 40
     },
     "passport": {
       "id": 19
     },
     "projects": {
-      "id": 25
+      "id": 28
     },
     "user": {
       "id": 19

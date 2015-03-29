@@ -31,128 +31,138 @@ function createFileHash(callback, results) {
 }
 
 function createUniqueHash(callback) {
-    async.retry(5, createFileHash, function(err, result) {
-        if (err) {
-            console.error(err);
-            calback(err, undefined);
+    var newhash = undefined;
+    async.whilst(
+        function () {
+            return newhash == undefined
+        },
+        function (callback_whilst) {
+            newhash = crypto.createHash('md5').update(uuid.v1()).digest('hex');
+            File.find({hash: newhash}).exec(function (err, files) {
+                if (err) {
+                    newhash = undefined;
+                    console.log('File.find error');
+                    callback_whilst(err);
+                }
+                else if (files.length != 0) {
+                    newhash = undefined;
+                    console.log('The new hash already exists');
+                    callback_whilst({required: 'The hash already in use.'});
+                }
+                else {
+                    // Success. newhash has a valid value
+                    callback_whilst();
+                }
+            });
+        },
+        function (err) {
+            // Return to async.waterfall
+            callback(err, newhash);
         }
-        else {
-            callback(null, result);
-        }
-    });
+    );
 }
 
 function findFile(hash, callback) {
-    console.log("hash " + hash);
     if (hash == undefined) {
-        callback(null, undefined);
+        // Return to async.waterfall without any file.
+        callback(undefined, undefined);
     }
     else {
-        File.find({hash: hash}).exec(function (err, files) {
+        File.findOne({hash: hash}).exec(function (err, file) {
             if (err) {
+                // Return to async.waterfall without any file.
                 callback(err, undefined);
             }
-            else if (files.length != 1) {
-                callback(err, undefined);
+            else if (file) {
+                // Return to async.waterfall without any file.
+                callback(undefined, file);
             }
-            callback(null, files[0]);
+            else {
+                // Return to async.waterfall with a file.
+                callback({ error: "E_NOTFOUND", summary: "File.findFile couldn't find the specified hash." }, undefined);
+            }
         });
     }
 }
 
 function createFile(req, res) {
-    var newname = req.param('name') || req.options.name;
-    var parenthash = req.param('parent') || req.options.parent;
-    var projecthash = req.param('project') || req.options.project;
-    var type;
+    console.log("createFile");
+
+    var newhash = undefined;
+    var newname = req.param('name') || req.options.name; // Finalize newname
+    var newtype = 'file';
+    var newpath = undefined;
+    var owner = req.session.passport.user; // Finalize owner
+    var parentfile = undefined;
+    var project = undefined;
+
     if (req.param('isdir') || req.options.isdir != undefined) {
-        newtype = "directory";
-    }
-    else {
-        newtype = "file";
+        newtype = 'directory'; // Finalize newtype
     }
 
-    createUniqueHash(function(err, newhash) {
-        if (err) {
-            console.error(err);
-            res.json(500, {result: "error", error: err});
-        }
-        else {
-            findFile(parenthash, function(err, parentfile) {
-                if (err) {
-                    console.error(err);
-                    res.json(500, {result: "error", error: err});
-                }
-                else {
-                    console.log("parentfile" + parentfile);
-                    var newpath = "";
-                    if (parentfile == undefined) {
-                        newpath = sails.config.myconf.projectsroot + "/" + newhash;
-                        newtype = "directory";
+    var parenthash = req.param('parenthash') || req.options.parenthash;
+    var projecthash = req.param('projecthash') || req.options.projecthash;
+
+    console.log("projecthash %o", projecthash);
+
+    async.waterfall([
+        function (callback) {
+            console.log("createuniquehash");
+            createUniqueHash(callback);
+        },
+        function (arg1, callback) {
+            newhash = arg1;
+            console.log("newhash %o", newhash);
+            findFile(parenthash, callback);
+        },
+        function (arg1, callback) {
+            parentfile = arg1; // Finalize parentfile
+            console.log("parentfile %o", parentfile);
+            if (parentfile) {
+                newpath = parentfile.path + "/" + newhash; // Finalize newpath
+                project = parentfile.project; // Finalize project
+                callback(undefined, undefined);
+            }
+            else {
+                newpath = sails.config.myconf.projectsroot + "/" + newhash; // Finalize newpath
+                newtype = 'directory'; // We are creating a new project root directory
+                ProjectController.find(projecthash, function(err, result) {
+                    if (err) {
+                        project = undefined;
+                        callback(err, undefined);
+                    }
+                    else if (result) {
+                        project = result;
+                        callback(undefined, undefined);
                     }
                     else {
-                        newpath = parentfile.path + "/" + newhash;
+                        console.log("projecthash " + projecthash + " not found");
+                        project = undefined;
+                        callback({ error: "E_NOTFOUND", summary: "Couldn't find parent project from the project hash." }, undefined);
                     }
-
-                    ProjectController.find(projecthash, function(err, project) {
-                        if (err) {
-                            console.error(err);
-                            res.json(500, {result: "error", error: err});
-                        }
-                        else {
-                            if (parentfile) {
-                                project = parentfile.project;
-                            }
-
-                            File.create({
-                                hash: newhash,
-                                name: newname,
-                                type: newtype,
-                                path: newpath,
-                                owner: req.session.passport.user,
-                                parent: parentfile,
-                                project: project
-                            }).exec(function (err, newfile) {
-                                if (err) {
-                                    console.error(err);
-                                    res.json(500, {result: "error", error: err});
-                                }
-                                console.log(newfile);
-                                if (newtype == "directory") {
-                                    mkdirp(newpath, function (err) {
-                                        if (err) {
-                                            console.error(err);
-                                            File.destroy({hash: newhash}).exec(function (err) {
-                                                if (err) {
-                                                    console.error(err);
-                                                    res.json(500, {result: "error", error: err});
-                                                }
-                                                res.json(500, {result: "error", error: err});
-                                            });
-                                        }
-                                        res.json(200, {result: "success"});
-                                    });
-                                }
-                                else {
-                                    fs.open(newpath, 'w', function (err) {
-                                        if (err) {
-                                            console.error(err);
-                                            File.destroy({hash: newhash}).exec(function (err) {
-                                                if (err) {
-                                                    console.error(err);
-                                                    res.json(500, {result: "error", error: err});
-                                                }
-                                                res.json(500, {result: "error", error: err});
-                                            });
-                                        }
-                                        res.json(200, {result: "success"});
-                                    });
-                                }
-                            });
-                        }
-                    });
-                }
+                });
+            }
+        },
+        function (arg1, callback) {
+            File.create({
+                hash: newhash,
+                name: newname,
+                type: newtype,
+                path: newpath,
+                owner: owner,
+                parent: parentfile,
+                project: project
+            }, function (err, newfile) {
+                console.log("File.create %o", newfile);
+                callback(err, newfile);
             });
+        }
+    ], function (err, result) {
+        if (err) {
+            res.json(500, err);
+        }
+        else {
+            res.json(200, result);
         }
     });
 }

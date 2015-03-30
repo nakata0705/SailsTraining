@@ -1,5 +1,5 @@
 module.exports = function(grunt) {
-
+    process.env.NODE_ENV = 'test';
     grunt.config.set('mochaTest', {
         test: {
             options: {

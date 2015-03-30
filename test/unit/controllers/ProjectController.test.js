@@ -4,11 +4,21 @@ var assert = require('assert');
 var request = require('supertest');
 
 describe('The Project Model', function () {
+    var agent;
+
+    before(function (done) {
+        agent = request.agent("http://localhost:1337");
+        agent
+            .get("/auth/google/callback")
+            .end(done);
+    });
+
     describe('when the project is created', function () {
         it ('the unique hash must be generated', function (done) {
-            request(sails.hooks.http.app).post('/project/create')
+            agent.post('/project/create')
                 .send({name: 'New Project'})
-                .expect(200, done);
+                .expect(200)
+                .end(done);
         });
     });
 });

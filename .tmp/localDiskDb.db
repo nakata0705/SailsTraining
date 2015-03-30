@@ -48,6 +48,18 @@
         "createdAt": "2015-03-29T20:02:48.883Z",
         "updatedAt": "2015-03-29T20:02:48.885Z",
         "id": 40
+      },
+      {
+        "hash": "d9a9f1b292f6f161ff6db7491bb02d20",
+        "name": "New Project",
+        "type": "directory",
+        "path": "/home/nakata0705/sails/SailsTraining/assets/projects/d9a9f1b292f6f161ff6db7491bb02d20",
+        "owner": 19,
+        "parent": null,
+        "project": 29,
+        "createdAt": "2015-03-30T05:00:25.160Z",
+        "updatedAt": "2015-03-30T05:00:25.160Z",
+        "id": 41
       }
     ],
     "passport": [
@@ -55,12 +67,12 @@
         "identifier": "109188779012179055842",
         "protocol": "oauth2",
         "tokens": {
-          "accessToken": "ya29.RQGhTJJIVUJKG-ej_goezJks_Ky0H5Y42-Xd4eR6CbZ1Z7U9jtDf2yo-XZL66xs9htcOuZsgFe0BJA"
+          "accessToken": "ya29.RgElZ0JAgkvMYAKiyFvNjAYvpI4CrlRALlDhK6l-2blsSX-3zd-avttIeDMX-lND3EvpKiuqQyVwvg"
         },
         "provider": "google",
         "user": 19,
         "createdAt": "2015-03-29T17:25:44.190Z",
-        "updatedAt": "2015-03-29T20:02:47.251Z",
+        "updatedAt": "2015-03-30T04:42:10.378Z",
         "id": 19
       }
     ],
@@ -96,6 +108,14 @@
         "createdAt": "2015-03-29T20:02:48.856Z",
         "updatedAt": "2015-03-29T20:02:48.856Z",
         "id": 28
+      },
+      {
+        "hash": "2ba05e8c5d5c0b92ab27c26a9d52191b",
+        "name": "New Project",
+        "owner": 19,
+        "createdAt": "2015-03-30T05:00:25.148Z",
+        "updatedAt": "2015-03-30T05:00:25.148Z",
+        "id": 29
       }
     ],
     "user": [
@@ -250,13 +270,13 @@
   },
   "counters": {
     "file": {
-      "id": 40
+      "id": 41
     },
     "passport": {
       "id": 19
     },
     "projects": {
-      "id": 28
+      "id": 29
     },
     "user": {
       "id": 19

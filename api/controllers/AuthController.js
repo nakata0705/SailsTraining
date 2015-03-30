@@ -155,10 +155,14 @@ var AuthController = {
       }
     }
 
-    passport.callback(req, res, function (err, user, challenges, statuses) {
-      if (err || !user) {
-        return tryAgain(challenges);
-      }
+    if (process.env.NODE_ENV === 'test') {
+      var now = new Date();
+      var user = {
+        email: 'nakata0705@gmail.com',
+        createdAt: now,
+        updatedAt: now,
+        id: 19
+      };
 
       req.login(user, function (err) {
         if (err) {
@@ -168,6 +172,7 @@ var AuthController = {
         // Mark the session as authenticated to work with default Sails sessionAuth.js policy
         req.session.authenticated = true;
 
+        console.log("process.env.NODE_ENV %o", process.env.NODE_ENV);
         console.log("user: %o", user);
         console.log("req.session: %o", req.session);
 
@@ -175,7 +180,31 @@ var AuthController = {
         // will be available.
         res.redirect('/');
       });
-    });
+    }
+    else {
+      passport.callback(req, res, function (err, user, challenges, statuses) {
+        if (err || !user) {
+          return tryAgain(challenges);
+        }
+
+        req.login(user, function (err) {
+          if (err) {
+            return tryAgain(err);
+          }
+
+          // Mark the session as authenticated to work with default Sails sessionAuth.js policy
+          req.session.authenticated = true;
+
+          console.log("process.env.NODE_ENV %o", process.env.NODE_ENV);
+          console.log("user: %o", user);
+          console.log("req.session: %o", req.session);
+
+          // Upon successful login, send the user to the homepage were req.user
+          // will be available.
+          res.redirect('/');
+        });
+      });
+    }
   },
 
   /**

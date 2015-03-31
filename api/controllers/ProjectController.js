@@ -5,8 +5,6 @@
  * @help        :: See http://links.sailsjs.org/docs/controllers
  */
 
-var projectdir = "projects";
-
 var uuid = require('node-uuid');
 var crypto = require('crypto');
 var FileController = require('./FileController');
@@ -56,67 +54,60 @@ function listProject(req, res) {
     });
 }
 
-function deleteProject(req, res) {
-    var hash = req.param('id') || req.options.id;
+function deleteProject(hash, callback) {
+    Project.destroy({ hash: hash }).exec(function (err, deletedProjects) {
+        callback(err, deletedProjects);
+    });
+}
+
+function deleteApi(req, res) {
+    var hash = req.param('hash') || req.options.id;
     if (hash == undefined) {
         res.json(500, {result: 'error', error: "id isn't specified."})
     }
 
-    Project.destroy({hash: hash}).exec(function (err) {
+    deleteProject(hash, function(err, deletedProjects) {
         if (err) {
-            console.error(err);
-            res.json(500, {result: "error", error: err});
+            res.json(500, err);
         }
-        fs.realpath('./', {}, function (err, resolvedPath) {
-            if (err) {
-                console.error(err);
-                res.json(500, {result: "error", error: err});
-
-            }
-            rimraf(resolvedPath + "/" + projectdir + "/" + project_id, function (err) {
-                if (err) {
-                    console.error(err);
-                    res.json(500, {result: "error", error: err});
-                }
-                res.json(200, {result: "success"});
-            });
-        });
+        else {
+            res.json(200, deletedProjects);
+        }
     });
 }
 
-function createProject(name, hash, owner, callback) {
-    Project.findOne({hash: hash}).exec(function (err, project) {
+function createProject(name, owner, callback) {
+    var hash = crypto.createHash('md5').update(uuid.v1()).digest('hex');
+
+    FileController.createFile(name, 'directory', owner, null, 0, function(err, newfile) { // Use temporary project ID "0" here
         if (err) {
             callback(err, undefined);
         }
-        else if (project) {
-            callback({ error: "E_ALREADYEXISTS", summary: "A project with the specified hash already exists."}, project);
-        }
         else {
-            Project.create({hash: hash, name: name, owner: owner}).exec(function (err, project) {
+            Project.create({ hash: hash, file: newfile }).exec(function (err, newproject) {
                 if (err) {
-                    callback(err, undefined);
-                }
-
-                FileController.createFile(name, 'directory', owner, undefined, hash, function(err, file) {
-                    if (err) {
+                    File.delete(newfile.id, function (err) {
                         callback(err, undefined);
-                    }
-                    else {
-                        callback(undefined, project);
-                    }
-                });
+                    });
+                }
+                else {
+                    File.update(newfile.id, { project: newproject }).exec(function(err, updatedFiles) {
+                        console.log(err);
+                        console.log(updatedFiles);
+                        console.log(newfile);
+                    });
+                    callback(undefined, newproject);
+                }
             });
         }
     });
 }
 
-function create(req, res) {
+function createApi(req, res) {
     var newname = req.param('name') || req.options.name;
-    var hash = crypto.createHash('md5').update(uuid.v1()).digest('hex');
     var owner = req.session.passport.user || req.options.user;
 
-    createProject(newname, hash, owner, function(err, project) {
+    createProject(newname, owner, function(err, project) {
         if (err) {
             console.error(err);
             res.json(500, err);
@@ -130,10 +121,11 @@ function create(req, res) {
 var ProjectController = {
     find: findProject,
     list: listProject,
-    delete: deleteProject,
-    create: create,
+    delete: deleteApi,
+    deleteProject: deleteProject,
+    create: createApi,
     createProject: createProject
-}
+};
 
 module.exports = ProjectController;
 

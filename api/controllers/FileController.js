@@ -7,60 +7,6 @@
 
 var uuid = require('node-uuid');
 var crypto = require('crypto');
-var fs = require('fs');
-var mkdirp = require('mkdirp');
-var rimraf = require('rimraf');
-var async = require('async');
-var ProjectController = require('./ProjectController');
-
-function createFileHash(callback, results) {
-    var newhash = crypto.createHash('md5').update(uuid.v1()).digest('hex');
-    File.find({hash: newhash}).exec(function (err, files) {
-        if (err) {
-            console.error(err);
-            callback(err, undefined);
-        }
-        else if (files.length != 0) {
-            console.error("The new hash is not unique");
-            callback("error", undefined);
-        }
-        else {
-            callback(null, newhash);
-        }
-    });
-}
-
-function createUniqueHash(callback) {
-    var newhash = undefined;
-    async.whilst(
-        function () {
-            return newhash == undefined
-        },
-        function (callback_whilst) {
-            newhash = crypto.createHash('md5').update(uuid.v1()).digest('hex');
-            File.find({hash: newhash}).exec(function (err, files) {
-                if (err) {
-                    newhash = undefined;
-                    console.log('File.find error');
-                    callback_whilst(err);
-                }
-                else if (files.length != 0) {
-                    newhash = undefined;
-                    console.log('The new hash already exists');
-                    callback_whilst({required: 'The hash already in use.'});
-                }
-                else {
-                    // Success. newhash has a valid value
-                    callback_whilst();
-                }
-            });
-        },
-        function (err) {
-            // Return to async.waterfall
-            callback(err, newhash);
-        }
-    );
-}
 
 function findFile(hash, callback) {
     if (hash == undefined) {
@@ -68,7 +14,7 @@ function findFile(hash, callback) {
         callback(undefined, undefined);
     }
     else {
-        File.findOne({hash: hash}).exec(function (err, file) {
+        File.findOne({ hash: hash }).exec(function (err, file) {
             if (err) {
                 // Return to async.waterfall without any file.
                 callback(err, undefined);
@@ -85,24 +31,25 @@ function findFile(hash, callback) {
     }
 }
 
-function createFile(name, type, owner, parenthash, projecthash, callback) {
+function createFile(name, type, owner, parenthash, projectid, callback) {
     var newhash = undefined;
     var newtype = type;
     var newpath = undefined;
     var parentfile = undefined;
-    var project = undefined;
-
-    console.log("projecthash %o", projecthash);
+    var project = projectid;
 
     async.waterfall([
         function (callback) {
-            console.log("createuniquehash");
-            createUniqueHash(callback);
-        },
-        function (arg1, callback) {
-            newhash = arg1;
+            newhash = crypto.createHash('md5').update(uuid.v1()).digest('hex');
             console.log("newhash %o", newhash);
-            findFile(parenthash, callback);
+            File.findOne({ hash: parenthash }, function(err, foundFile) {
+                if (err) {
+                    callback(err, undefined);
+                }
+                else {
+                    callback(err, foundFile);
+                }
+            });
         },
         function (arg1, callback) {
             parentfile = arg1; // Finalize parentfile
@@ -112,30 +59,18 @@ function createFile(name, type, owner, parenthash, projecthash, callback) {
                 project = parentfile.project; // Finalize project
                 callback(undefined, undefined);
             }
-            else {
+            else if (projectid != undefined) {
                 newpath = sails.config.myconf.projectsroot + "/" + newhash; // Finalize newpath
                 newtype = 'directory'; // We are creating a new project root directory
-                ProjectController.find(projecthash, function (err, result) {
-                    if (err) {
-                        project = undefined;
-                        callback(err, undefined);
-                    }
-                    else if (result) {
-                        project = result;
-                        callback(undefined, undefined);
-                    }
-                    else {
-                        console.log("projecthash " + projecthash + " not found");
-                        project = undefined;
-                        callback({
-                            error: "E_NOTFOUND",
-                            summary: "Couldn't find parent project from the project hash."
-                        }, undefined);
-                    }
-                });
+                project = projectid;
+                callback(undefined, undefined);
+            }
+            else {
+                callback({ error: "E_NOTSPECIFIED" }, undefined);
             }
         },
         function (arg1, callback) {
+            console.log("project " + project);
             File.create({
                 hash: newhash,
                 name: name,
@@ -164,7 +99,7 @@ function create(req, res) {
     var type;
     var owner = req.session.passport.user || req.options.user; // Finalize owner
     var parenthash = req.param('parenthash') || req.options.parenthash;
-    var projecthash = req.param('projecthash') || req.options.projecthash;
+    var projectid = req.param('projectid') || req.options.projectid;
 
     if (req.param('isdir') || req.options.isdir) {
         newtype = 'directory'
@@ -173,7 +108,26 @@ function create(req, res) {
         type = 'file';
     }
 
-    createFile(name, type, owner, parenthash, projecthash, function (err, file) {
+    createFile(name, type, owner, parenthash, projectid, function (err, file) {
+        if (err) {
+            res.json(500, err);
+        }
+        else {
+            res.json(200, file);
+        }
+    });
+}
+
+function deleteFile(hash, callback) {
+    File.destroy({hash: hash}).exec(function (err) {
+        callback(err);
+    });
+}
+
+function deleteApi(req, res) {
+    var hash = req.param('hash') || req.options.hash; // Finalize newname
+
+    deleteFile(hash, function (err) {
         if (err) {
             res.json(500, err);
         }
@@ -186,7 +140,9 @@ function create(req, res) {
 var FileController = {
     create: create,
     createFile: createFile,
-    find: findFile
+    find: findFile,
+    delete: deleteApi,
+    deleteFile: deleteFile
 };
 
 module.exports = FileController;

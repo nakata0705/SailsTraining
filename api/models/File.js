@@ -5,6 +5,7 @@
  * @docs        :: http://sailsjs.org/#!documentation/models
  */
 
+var async = require('async');
 var fs = require('fs');
 var mkdirp = require('mkdirp');
 var rimraf = require('rimraf');
@@ -12,39 +13,66 @@ var rimraf = require('rimraf');
 module.exports = {
 
     attributes: {
-        hash: {type: "string", unique: true, required: true},
-        name: {type: "string", columnName: "name", defaultsTo: "New File"},
-        type: {type: "string", enum: ["file", "directory"], defaultsTo: "file"},
-        path: {type: "string", required: true},
-        owner: {model: "user", required: true},
-        parent: {model: "file"},
-        project: {model: "project", required: true}
+        hash: { type: "string", unique: true, required: true },
+        name: { type: "string", columnName: "name", defaultsTo: "New File" },
+        type: { type: "string", enum: ["file", "directory"], defaultsTo: "file" },
+        path: { type: "string", required: true },
+        owner: { model: "user", required: true },
+        parent: { model: "file" },
+        children: { collection: 'file', via: 'parent' },
+        project: { model: "project" }
     },
 
-    afterCreate: function (values, callback) {
-        switch (values.type) {
+    afterCreate: function (newFile, callback) {
+        switch (newFile.type) {
             case "directory":
-                mkdirp(values.path, function (err) {
+                mkdirp(newFile.path, function (err) {
                     if (err) {
                         console.error(err);
-                        File.destroy({hash: values.hash}).exec(function (err_destroy) {
-                            callback(err);
+                        File.destroy({hash: newFile.hash}).exec(function (err_destroy) {
+                            return callback(err_destroy);
                         });
                     }
-                    callback();
+                    return callback();
                 });
                 break;
             default:
-                fs.open(values.path, 'w', function (err) {
+                fs.open(newFile.path, 'w', function (err) {
                     if (err) {
                         console.error(err);
-                        File.destroy({hash: values.hash}).exec(function (err_destroy) {
-                            callback(err);
+                        File.destroy({hash: newFile.hash}).exec(function (err_destroy) {
+                            return callback(err_destroy);
                         });
                     }
-                    callback();
+                    return callback();
                 });
         }
-    }
+    },
 
-}
+    afterDestroy: function(destroyedFiles, callback) {
+        console.log("destroyedFiles");
+        console.log(destroyedFiles);
+        if (destroyedFiles) {
+            async.each(destroyedFiles, function (destroyedFile, callback) {
+                if (destroyedFile.children) {
+                    async.each(destroyedFile.children, function(child, callback) {
+                        File.destroy(child);
+                        callback();
+                    });
+                }
+                rimraf(destroyedFile.path, function(err) {
+                    if (err) {
+                        console.error(err);
+                        return callback(err);
+                    }
+                    else {
+                        console.log("File.afterDestroy: rimraf() %o", destroyedFile);
+                        return callback();
+                    }
+                });
+            }, function (err) {
+                return callback(err);
+            });
+        }
+    }
+};

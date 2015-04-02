@@ -8,52 +8,17 @@
 var uuid = require('node-uuid');
 var crypto = require('crypto');
 
-function infoApi(req, res) {
-    var hash = req.param('hash');
-    var path = req.param('path');
-
-    if (hash) {
-        File.findOne({ hash: hash }).populate('children').exec(function (err, file) {
-            if (err) {
-                // Return to async.waterfall without any file.
-                res.json(500, err);
-            }
-            else if (file) {
-                // Return to async.waterfall without any file.
-                res.json(200, file);
-            }
-            else {
-                res.json(500, {});
-            }
-        });
-    }
-    else if (path) {
-        File.findOne({ path: path }).populate('children').exec(function (err, file) {
-            if (err) {
-                // Return to async.waterfall without any file.
-                res.json(500, err);
-            }
-            else if (file) {
-                // Return to async.waterfall without any file.
-                res.json(200, file);
-            }
-            else {
-                res.json(500, {});
-            }
-        });
-    }
-}
-
-function createFile(name, type, owner, parenthash, callback) {
+function create(name, type, owner, parentpath, callback) {
     var newname = name;
-    var newhash = undefined;
     var newtype = type;
-    var newpath = undefined;
-    var parentfile = undefined;
+    var newpath = null;
+    var parentfile = null;
+
+    console.log("name " + name + " type " + type + " owner " + owner + " parentpath " + parentpath);
 
     async.waterfall([
         function (callback) {
-            File.findOne({ hash: parenthash }, function(err, foundFile) {
+            File.findOne({ path: parentpath }).exec(function(err, foundFile) {
                 if (err) {
                     callback(err, undefined);
                 }
@@ -64,15 +29,14 @@ function createFile(name, type, owner, parenthash, callback) {
         },
         function (arg1, callback) {
             parentfile = arg1; // Finalize parentfile
-            newhash = crypto.createHash('md5').update(uuid.v1()).digest('hex');
+            console.log("parentfile %o " + parentfile);
 
             if (parentfile && parentfile.type == "directory") {
                 newpath = parentfile.path + "/" + newname; // Finalize newpath
                 callback(undefined, undefined);
             }
-            else if (parenthash == "NEW_PROJECT_fLi1GutAbO4aMveH") {
-                newname = newhash;
-                newpath = sails.config.myconf.projectsroot + "/" + newname; // This is a project name. Use hash as the directory name
+            else if (parentpath == "NEW_PROJECT_fLi1GutAbO4aMveH") {
+                newpath = "/" + crypto.createHash('md5').update(uuid.v1()).digest('hex'); // This is a project name. Use hash as the directory name
                 newtype = 'directory'; // We are creating a new project root directory
                 callback(undefined, undefined);
             }
@@ -81,13 +45,12 @@ function createFile(name, type, owner, parenthash, callback) {
             }
         },
         function (arg1, callback) {
+            console.log("newpath " + newpath + " newtype " + newtype + " owner " + owner + " parent " + parentfile);
             File.create({
-                hash: newhash,
-                name: newname,
                 type: newtype,
                 path: newpath,
                 owner: owner,
-                parent: parentfile,
+                parent: parentfile
             }, function (err, newfile) {
                 console.log("File.create %o", newfile);
                 callback(err, newfile);
@@ -104,58 +67,120 @@ function createFile(name, type, owner, parenthash, callback) {
     });
 }
 
-function create(req, res) {
-    var name = req.param('name') || req.options.name; // Finalize newname
-    var type = req.param('type') || req.options.type;
-    var owner = req.session.passport.user || req.options.user; // Finalize owner
-    var parenthash = req.param('parenthash') || req.options.parenthash;
-
-    if (type == undefined) {
-        type = 'file';
-    }
-
-    createFile(name, type, owner, parenthash, function (err, file) {
+function createFile(path, name, owner, callback) {
+    create(name, "file", owner, path, function (err, file) {
         if (err) {
-            res.json(500, err);
+            callback(err);
         }
         else {
-            res.json(200, file);
+            callback(undefined, file);
         }
     });
 }
 
-function deleteApi(req, res) {
-    var hash = req.param('hash') || req.options.hash;
-    var name = req.param('path') || req.options.path;
+function createDirectory(path, name, owner, callback) {
+    create(name, "directory", owner, path, function (err, file) {
+        if (err) {
+            callback(err);
+        }
+        else {
+            callback(undefined, file);
+        }
+    });
+}
 
-    if (hash) {
-        File.destroy({hash: hash}).exec(function (err) {
-            if (err) {
-                res.json(500, err);
-            }
-            else {
-                res.json(200, file);
-            }
+function deleteFile(path, user, callback) {
+    if (path == undefined) {
+        callback({error: "E_NOPATH"});
+    }
+    else {
+        // ToDo: Check ownership properly
+        File.destroy({ path: path, owner: user }).exec(function (err) {
+            callback(err);
         });
     }
-    else if (name) {
-        File.destroy({name: path}).exec(function (err) {
+}
+
+function actionApi(req, res) {
+    var path = req.param('path') || req.options.path;
+    var action = req.param('action') || req.options.action;
+    var actionparam = req.param('actionparam') || req.options.actionparam;
+    var user = req.session.passport.user || req.options.user;
+
+    if (path == undefined) {
+        res.json(500, { error: "E_NOPATH" });
+    }
+    else if (action == undefined) {
+        res.json(500, { error: "E_NOACTION" });
+    }
+
+    switch (action) {
+        case "delete":
+            deleteFile(path, user, function(err) {
+                if (err) {
+                    res.json(500, err);
+                }
+                else {
+                    res.json(200, {});
+                }
+            });
+            break;
+        case "createfile":
+            createFile(path, actionparam, user, function(err, file) {
+                if (err) {
+                    res.json(500, err);
+                }
+                else {
+                    res.json(200, file);
+                }
+            });
+            break;
+        case "createdirectory":
+            createDirectory(path, actionparam, user, function(err, file) {
+                if (err) {
+                    res.json(500, err);
+                }
+                else {
+                    res.json(200, file);
+                }
+            });
+            break;
+        default:
+            res.json(500, { error: "E_UNKNOWNACTION_" + action })
+    }
+}
+
+function viewApi(req, res) {
+    var path = req.param('path');
+    console.log("path " + path);
+
+    if (path ==  undefined) {
+        res.json(500, { error: "E_NOFILE"});
+    }
+    else {
+        File.findOne({ path: path }).populate('children').exec(function(err, foundFile) {
             if (err) {
                 res.json(500, err);
             }
+            else if (foundFile == undefined) {
+                res.json(500, {error: "E_NOFILE"});
+            }
             else {
-                res.json(200, file);
+                if (foundFile.type == "directory") {
+                    res.json(200, foundFile.children);
+                }
+                else {
+                    res.sendfile(sails.config.myconf.projectsroot + foundFile.path);
+                }
             }
         });
-
     }
 }
 
 var FileController = {
-    create: create,
-    createFile: createFile,
-    info: infoApi,
-    delete: deleteApi,
+    createDirectory: createDirectory,
+    action: actionApi,
+    view: viewApi
 };
 
 module.exports = FileController;

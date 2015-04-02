@@ -54,5 +54,9 @@ module.exports.routes = {
 
   'get /auth/:provider': 'AuthController.provider',
   'get /auth/:provider/callback': 'AuthController.callback',
-  'get /auth/:provider/:action': 'AuthController.callback'
+  'get /auth/:provider/:action': 'AuthController.callback',
+
+  'get r|^/files(\/.*)/!(.*?)/(.*?)$|path,action,actionparam': 'FileController.action',
+  'get r|^/files(\/.*)/!(.*?)$|path,action': 'FileController.action',
+  'get r|^/files(\/.*)$|path': 'FileController.view'
 };

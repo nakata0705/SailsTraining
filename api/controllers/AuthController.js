@@ -172,10 +172,6 @@ var AuthController = {
         // Mark the session as authenticated to work with default Sails sessionAuth.js policy
         req.session.authenticated = true;
 
-        console.log("process.env.NODE_ENV %o", process.env.NODE_ENV);
-        console.log("user: %o", user);
-        console.log("req.session: %o", req.session);
-
         // Upon successful login, send the user to the homepage were req.user
         // will be available.
         res.redirect('/');
@@ -194,10 +190,6 @@ var AuthController = {
 
           // Mark the session as authenticated to work with default Sails sessionAuth.js policy
           req.session.authenticated = true;
-
-          console.log("process.env.NODE_ENV %o", process.env.NODE_ENV);
-          console.log("user: %o", user);
-          console.log("req.session: %o", req.session);
 
           // Upon successful login, send the user to the homepage were req.user
           // will be available.

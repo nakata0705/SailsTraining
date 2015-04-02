@@ -9,8 +9,9 @@ module.exports = {
 
     tableName: "projects",
     attributes: {
-        hash: {type: "string", unique: true, columnName: "hash", required: true},
-        file: {model: 'file', required: true}
+        hash: {type: "string", unique: true, required: true },
+        name: {type: "string", required: true },
+        root: {model: 'file', required: true}
     },
 
     afterDestroy: function (destroyedProjects, callback) {

@@ -13,10 +13,8 @@ var rimraf = require('rimraf');
 module.exports = {
 
     attributes: {
-        hash: { type: "string", unique: true, required: true },
-        name: { type: "string", required: true },
-        type: { type: "string", enum: ["file", "directory"], required: true },
         path: { type: "string", unique: true, required: true },
+        type: { type: "string", enum: ["file", "directory"], required: true },
         owner: { model: "user", required: true },
         parent: { model: "file" },
         children: { collection: 'file', via: 'parent' }
@@ -25,53 +23,39 @@ module.exports = {
     afterCreate: function (newFile, callback) {
         switch (newFile.type) {
             case "directory":
-                mkdirp(newFile.path, function (err) {
+                mkdirp(sails.config.myconf.projectsroot + newFile.path, function (err) {
                     if (err) {
                         console.error(err);
-                        File.destroy({hash: newFile.hash}).exec(function (err_destroy) {
-                            return callback(err_destroy);
+                        File.destroy({ path: newFile.path }).exec(function (err_destroy) {
+                            callback(err_destroy);
                         });
                     }
-                    return callback();
+                    callback();
                 });
                 break;
             default:
-                fs.open(newFile.path, 'w', function (err) {
+                fs.open(sails.config.myconf.projectsroot + newFile.path, 'w', function (err) {
                     if (err) {
                         console.error(err);
-                        File.destroy({hash: newFile.hash}).exec(function (err_destroy) {
-                            return callback(err_destroy);
+                        File.destroy({ path: newFile.path }).exec(function(err_destroy) {
+                            callback(err_destroy);
                         });
                     }
-                    return callback();
+                    callback();
                 });
         }
     },
 
     afterDestroy: function(destroyedFiles, callback) {
-        console.log("destroyedFiles");
-        console.log(destroyedFiles);
-        if (destroyedFiles) {
-            async.each(destroyedFiles, function (destroyedFile, callback) {
-                if (destroyedFile.children) {
-                    async.each(destroyedFile.children, function(child, callback) {
-                        File.destroy(child);
-                        callback();
-                    });
-                }
-                rimraf(destroyedFile.path, function(err) {
-                    if (err) {
-                        console.error(err);
-                        return callback(err);
-                    }
-                    else {
-                        console.log("File.afterDestroy: rimraf() %o", destroyedFile);
-                        return callback();
-                    }
+        async.each(destroyedFiles, function (destroyedFile, destroycallback) {
+            console.log("destroyedFile: " + destroyedFile.id);
+            File.destroy({ parent: destroyedFile.id }).exec(function(err_destroy) {
+                rimraf(destroyedFile.path, function(rimraf_err) {
+                    destroycallback(rimraf_err);
                 });
-            }, function (err) {
-                return callback(err);
             });
-        }
+        }, function (err) {
+            callback(err);
+        });
     }
 };

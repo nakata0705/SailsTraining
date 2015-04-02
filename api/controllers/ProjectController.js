@@ -79,23 +79,18 @@ function deleteApi(req, res) {
 function createProject(name, owner, callback) {
     var hash = crypto.createHash('md5').update(uuid.v1()).digest('hex');
 
-    FileController.createFile(name, 'directory', owner, "NEW_PROJECT_fLi1GutAbO4aMveH", function(err, newfile) { // Use temporary project ID "0" here
+    FileController.createDirectory("NEW_PROJECT_fLi1GutAbO4aMveH", hash, owner, function(err, newfile) { // Use temporary project ID "0" here
         if (err) {
             callback(err, undefined);
         }
         else {
-            Project.create({ hash: hash, file: newfile }).exec(function (err, newproject) {
+            Project.create({ name: name, hash: hash, root: newfile }).exec(function (err, newproject) {
                 if (err) {
                     File.delete(newfile.id, function (err) {
                         callback(err, undefined);
                     });
                 }
                 else {
-                    File.update(newfile.id, { project: newproject }).exec(function(err, updatedFiles) {
-                        console.log(err);
-                        console.log(updatedFiles);
-                        console.log(newfile);
-                    });
                     callback(undefined, newproject);
                 }
             });

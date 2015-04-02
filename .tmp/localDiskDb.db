@@ -2,66 +2,22 @@
   "data": {
     "file": [
       {
-        "hash": "52aa39876e20c7af3d3e7441fbddf9d3",
-        "name": "52aa39876e20c7af3d3e7441fbddf9d3",
         "type": "directory",
-        "path": "/home/nakata0705/sails/SailsTraining/assets/projects/52aa39876e20c7af3d3e7441fbddf9d3",
-        "owner": 89,
+        "path": "/032f9fe58beac5e72209fab9642b1952",
+        "owner": 160,
         "parent": null,
-        "createdAt": "2015-04-01T07:20:17.119Z",
-        "updatedAt": "2015-04-01T07:20:17.136Z",
-        "id": 112,
-        "project": {
-          "hash": "cca823d73e4d9307420bd3df7608e8e0",
-          "file": 112,
-          "createdAt": "2015-04-01T07:20:17.133Z",
-          "updatedAt": "2015-04-01T07:20:17.133Z",
-          "id": 72
-        }
+        "createdAt": "2015-04-02T08:38:23.083Z",
+        "updatedAt": "2015-04-02T08:38:23.083Z",
+        "id": 186
       },
       {
-        "hash": "9b758776444eba1d7303d48a2462b1fa",
-        "name": "abc",
-        "type": "directory",
-        "path": "/home/nakata0705/sails/SailsTraining/assets/projects/52aa39876e20c7af3d3e7441fbddf9d3/abc",
-        "owner": 89,
-        "parent": 112,
-        "createdAt": "2015-04-01T07:20:56.865Z",
-        "updatedAt": "2015-04-01T07:20:56.865Z",
-        "id": 113
-      },
-      {
-        "hash": "f6d3770052e9e1018c32821f66376b39",
-        "name": "abcd",
         "type": "file",
-        "path": "/home/nakata0705/sails/SailsTraining/assets/projects/52aa39876e20c7af3d3e7441fbddf9d3/abcd",
-        "owner": 89,
-        "parent": 112,
-        "createdAt": "2015-04-01T07:21:10.284Z",
-        "updatedAt": "2015-04-01T07:21:10.284Z",
-        "id": 114
-      },
-      {
-        "hash": "34156cb59f371e9771e07d3cd43fb41d",
-        "name": "abcde",
-        "type": "file",
-        "path": "/home/nakata0705/sails/SailsTraining/assets/projects/52aa39876e20c7af3d3e7441fbddf9d3/abcde",
-        "owner": 89,
-        "parent": 112,
-        "createdAt": "2015-04-01T07:21:16.574Z",
-        "updatedAt": "2015-04-01T07:21:16.574Z",
-        "id": 115
-      },
-      {
-        "hash": "2c2bbafb8e1f2de1d4162a219ab2594d",
-        "name": "abcde",
-        "type": "file",
-        "path": "/home/nakata0705/sails/SailsTraining/assets/projects/52aa39876e20c7af3d3e7441fbddf9d3/abc/abcde",
-        "owner": 89,
-        "parent": 113,
-        "createdAt": "2015-04-01T07:21:26.743Z",
-        "updatedAt": "2015-04-01T07:21:26.743Z",
-        "id": 116
+        "path": "/032f9fe58beac5e72209fab9642b1952/test.jpg",
+        "owner": 160,
+        "parent": 186,
+        "createdAt": "2015-04-02T08:38:46.922Z",
+        "updatedAt": "2015-04-02T08:38:46.922Z",
+        "id": 187
       }
     ],
     "passport": [
@@ -69,41 +25,38 @@
         "identifier": "109188779012179055842",
         "protocol": "oauth2",
         "tokens": {
-          "accessToken": "ya29.SAG69G6k9PigQ2FjXo3mfWzolaY0tQ-VGLkKzcq0jNSi1mz43MD0lY7QFnyyYN-KPtRmiOak9OGO5A"
+          "accessToken": "ya29.SQFITfoaqbP984MpY4TaJU0D-qv-f8OjUy17Zc4iEkpBq-cqBqk55FSpxdp6MAZQkk_MWR8Lw44pxw"
         },
         "provider": "google",
-        "user": 89,
-        "createdAt": "2015-04-01T07:20:14.080Z",
-        "updatedAt": "2015-04-01T07:20:14.080Z",
-        "id": 89
+        "user": 160,
+        "createdAt": "2015-04-02T08:38:20.684Z",
+        "updatedAt": "2015-04-02T08:38:20.684Z",
+        "id": 160
       }
     ],
     "projects": [
       {
-        "hash": "cca823d73e4d9307420bd3df7608e8e0",
-        "file": 112,
-        "createdAt": "2015-04-01T07:20:17.133Z",
-        "updatedAt": "2015-04-01T07:20:17.133Z",
-        "id": 72
+        "hash": "fdaef8bc30d3b7a9df0f073581965c7d",
+        "root": 186,
+        "createdAt": "2015-04-02T08:38:23.102Z",
+        "updatedAt": "2015-04-02T08:38:23.102Z",
+        "id": 116
       }
     ],
     "user": [
       {
         "email": "nakata0705@gmail.com",
-        "createdAt": "2015-04-01T07:20:14.068Z",
-        "updatedAt": "2015-04-01T07:20:14.068Z",
-        "id": 89
+        "createdAt": "2015-04-02T08:38:20.663Z",
+        "updatedAt": "2015-04-02T08:38:20.663Z",
+        "id": 160
       }
     ]
   },
   "schema": {
     "file": {
-      "hash": {
+      "path": {
         "type": "string",
         "unique": true
-      },
-      "name": {
-        "type": "string"
       },
       "type": {
         "type": "string",
@@ -111,10 +64,6 @@
           "file",
           "directory"
         ]
-      },
-      "path": {
-        "type": "string",
-        "unique": true
       },
       "owner": {
         "type": "integer",
@@ -184,11 +133,11 @@
         "type": "string",
         "unique": true
       },
-      "file": {
+      "root": {
         "type": "integer",
         "model": "file",
         "foreignKey": true,
-        "alias": "file"
+        "alias": "root"
       },
       "id": {
         "type": "integer",
@@ -228,16 +177,16 @@
   },
   "counters": {
     "file": {
-      "id": 116
+      "id": 187
     },
     "passport": {
-      "id": 89
+      "id": 160
     },
     "projects": {
-      "id": 72
+      "id": 116
     },
     "user": {
-      "id": 89
+      "id": 160
     }
   }
 }

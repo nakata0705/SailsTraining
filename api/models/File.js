@@ -14,13 +14,12 @@ module.exports = {
 
     attributes: {
         hash: { type: "string", unique: true, required: true },
-        name: { type: "string", columnName: "name", defaultsTo: "New File" },
-        type: { type: "string", enum: ["file", "directory"], defaultsTo: "file" },
-        path: { type: "string", required: true },
+        name: { type: "string", required: true },
+        type: { type: "string", enum: ["file", "directory"], required: true },
+        path: { type: "string", unique: true, required: true },
         owner: { model: "user", required: true },
         parent: { model: "file" },
-        children: { collection: 'file', via: 'parent' },
-        project: { model: "project" }
+        children: { collection: 'file', via: 'parent' }
     },
 
     afterCreate: function (newFile, callback) {

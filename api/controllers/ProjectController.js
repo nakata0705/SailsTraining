@@ -79,7 +79,7 @@ function deleteApi(req, res) {
 function createProject(name, owner, callback) {
     var hash = crypto.createHash('md5').update(uuid.v1()).digest('hex');
 
-    FileController.createFile(name, 'directory', owner, null, 0, function(err, newfile) { // Use temporary project ID "0" here
+    FileController.createFile(name, 'directory', owner, "NEW_PROJECT_fLi1GutAbO4aMveH", function(err, newfile) { // Use temporary project ID "0" here
         if (err) {
             callback(err, undefined);
         }

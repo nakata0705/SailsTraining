@@ -170,7 +170,14 @@ function viewApi(req, res) {
                     res.json(200, foundFile.children);
                 }
                 else {
-                    res.sendfile(sails.config.myconf.projectsroot + foundFile.path);
+                    res.sendfile(sails.config.myconf.projectsroot + foundFile.path, {}, function(err) {
+                        if (err) {
+                            res.json(500, err);
+                        }
+                        else {
+                            res.json(200, {});
+                        }
+                    });
                 }
             }
         });
@@ -178,8 +185,8 @@ function viewApi(req, res) {
 }
 
 var FileController = {
-    createDirectory: createDirectory,
     action: actionApi,
+    createDirectory: createDirectory,
     view: viewApi
 };
 

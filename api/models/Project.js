@@ -11,12 +11,13 @@ module.exports = {
     attributes: {
         hash: {type: "string", unique: true, required: true },
         name: {type: "string", required: true },
-        root: {model: 'file', required: true}
+        owner: { model: "user", required: true },
+        rootdir: {model: 'file', required: true}
     },
 
     afterDestroy: function (destroyedProjects, callback) {
         async.each(destroyedProjects, function (project, callback) {
-            File.destroy(project.file.id).exec(function (err) {
+            File.destroy(project.rootdir).exec(function (err) {
                 return callback(err);
             });
         }, function (err) {

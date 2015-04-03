@@ -9,43 +9,11 @@ var uuid = require('node-uuid');
 var crypto = require('crypto');
 var FileController = require('./FileController');
 
-function findProject(hash, callback) {
-    if (hash == undefined) {
-        callback({ error: "E_NOTSPECIFIED" }, undefined);
-    }
-    else {
-        Project.findOne({hash: hash}).exec(function (err, project) {
-            console.log("Project.find returns %o", project);
-            console.log("Project.find returns %o", err);
-            if (err) {
-                console.log("returning err");
-                callback(err, undefined);
-            }
-            else if (project) {
-                console.log("returning project");
-                callback(undefined, project);
-            }
-            else {
-                console.log("returning notfound");
-                callback({ error: "E_NOTFOUND" }, undefined);
-            }
-        });
-    }
-}
+function viewApi(req, res) {
+    var owner = req.session.passport.user || req.options.user;
 
-function listProject(req, res) {
-    var default_project_limit = 20;
-    var find_limit = req.param('limit') || req.options.limit;
-    var find_from = req.param('from') || req.options.from;
-
-    if (find_limit === undefined || isNumeric(find_limit) != true) {
-        find_limit = default_project_limit;
-    }
-    if (find_from === undefined || isNumeric(find_from) != true) {
-        find_from = 0;
-    }
-
-    Project.find({where: {}, from: find_from, limit: find_limit}).exec(function (err, projects) {
+    Project.find({ where: { owner: owner } }).exec(function (err, projects) {
+        console.log(projects);
         if (err) {
             console.error(err);
             res.json(500, {});
@@ -54,25 +22,9 @@ function listProject(req, res) {
     });
 }
 
-function deleteProject(hash, callback) {
-    Project.destroy({ hash: hash }).exec(function (err, deletedProjects) {
+function deleteProject(hash, owner, callback) {
+    Project.destroy({ hash: hash, owner: owner }).exec(function (err, deletedProjects) {
         callback(err, deletedProjects);
-    });
-}
-
-function deleteApi(req, res) {
-    var hash = req.param('hash') || req.options.id;
-    if (hash == undefined) {
-        res.json(500, {result: 'error', error: "id isn't specified."})
-    }
-
-    deleteProject(hash, function(err, deletedProjects) {
-        if (err) {
-            res.json(500, err);
-        }
-        else {
-            res.json(200, deletedProjects);
-        }
     });
 }
 
@@ -84,7 +36,7 @@ function createProject(name, owner, callback) {
             callback(err, undefined);
         }
         else {
-            Project.create({ name: name, hash: hash, root: newfile }).exec(function (err, newproject) {
+            Project.create({ name: name, hash: hash, owner: owner, rootdir: newfile }).exec(function (err, newproject) {
                 if (err) {
                     File.delete(newfile.id, function (err) {
                         callback(err, undefined);
@@ -98,28 +50,45 @@ function createProject(name, owner, callback) {
     });
 }
 
-function createApi(req, res) {
-    var newname = req.param('name') || req.options.name;
-    var owner = req.session.passport.user || req.options.user;
+function actionApi(req, res) {
+    var action = req.param('action') || req.options.action;
+    var actionparam = req.param('actionparam') || req.options.actionparam;
+    var user = req.session.passport.user || req.options.user;
 
-    createProject(newname, owner, function(err, project) {
-        if (err) {
-            console.error(err);
-            res.json(500, err);
-        }
-        else {
-            res.json(200, project);
-        }
-    });
+    if (action == undefined) {
+        res.json(500, { error: "E_NOACTION" });
+    }
+
+    switch (action) {
+        case "delete":
+            deleteProject(actionparam, user, function(err) {
+                if (err) {
+                    res.json(500, err);
+                }
+                else {
+                    res.json(200, {});
+                }
+            });
+            break;
+        case "create":
+            createProject(actionparam, user, function(err, project) {
+                if (err) {
+                    res.json(500, err);
+                }
+                else {
+                    res.json(200, project);
+                }
+            });
+            break;
+        default:
+            res.json(500, { error: "E_UNKNOWNACTION_" + action })
+    }
+
 }
 
 var ProjectController = {
-    find: findProject,
-    list: listProject,
-    delete: deleteApi,
-    deleteProject: deleteProject,
-    create: createApi,
-    createProject: createProject
+    action: actionApi,
+    view: viewApi
 };
 
 module.exports = ProjectController;

@@ -49,7 +49,7 @@ module.exports = {
     afterDestroy: function(destroyedFiles, callback) {
         async.each(destroyedFiles, function (destroyedFile, destroycallback) {
             console.log("destroyedFile: " + destroyedFile.id);
-            File.destroy({ parent: destroyedFile.id }).exec(function(err_destroy) {
+            File.destroy({ parent: destroyedFile }).exec(function(err_destroy) {
                 rimraf(destroyedFile.path, function(rimraf_err) {
                     destroycallback(rimraf_err);
                 });

@@ -3,21 +3,57 @@
     "file": [
       {
         "type": "directory",
-        "path": "/032f9fe58beac5e72209fab9642b1952",
-        "owner": 160,
+        "path": "/28552b75cba6dce09fafecfce1b280b3",
+        "owner": 161,
         "parent": null,
-        "createdAt": "2015-04-02T08:38:23.083Z",
-        "updatedAt": "2015-04-02T08:38:23.083Z",
-        "id": 186
+        "createdAt": "2015-04-03T05:39:41.563Z",
+        "updatedAt": "2015-04-03T05:39:41.563Z",
+        "id": 189
       },
       {
-        "type": "file",
-        "path": "/032f9fe58beac5e72209fab9642b1952/test.jpg",
-        "owner": 160,
-        "parent": 186,
-        "createdAt": "2015-04-02T08:38:46.922Z",
-        "updatedAt": "2015-04-02T08:38:46.922Z",
-        "id": 187
+        "type": "directory",
+        "path": "/5a954249c7fbf80cf1ba30d3d0e8d7d5",
+        "owner": 161,
+        "parent": null,
+        "createdAt": "2015-04-03T05:43:58.404Z",
+        "updatedAt": "2015-04-03T05:43:58.404Z",
+        "id": 190
+      },
+      {
+        "type": "directory",
+        "path": "/1d832eb65446fed089639b28e46f6fc2",
+        "owner": 161,
+        "parent": null,
+        "createdAt": "2015-04-03T07:36:06.510Z",
+        "updatedAt": "2015-04-03T07:36:06.510Z",
+        "id": 195
+      },
+      {
+        "type": "directory",
+        "path": "/8afe8267d02ecc61cbc8ac86e7f9f373",
+        "owner": 161,
+        "parent": null,
+        "createdAt": "2015-04-03T08:17:56.771Z",
+        "updatedAt": "2015-04-03T08:17:56.771Z",
+        "id": 196
+      },
+      {
+        "type": "directory",
+        "path": "/90edf449cdc5cba2b5b37d8bbdb9450e",
+        "owner": 161,
+        "parent": null,
+        "createdAt": "2015-04-03T08:18:02.533Z",
+        "updatedAt": "2015-04-03T08:18:02.533Z",
+        "id": 197
+      },
+      {
+        "type": "directory",
+        "path": "/6d68502e710000c685a4f30a2afb6f1b",
+        "owner": 161,
+        "parent": null,
+        "createdAt": "2015-04-03T08:18:06.081Z",
+        "updatedAt": "2015-04-03T08:18:06.081Z",
+        "id": 198
       }
     ],
     "passport": [
@@ -25,30 +61,59 @@
         "identifier": "109188779012179055842",
         "protocol": "oauth2",
         "tokens": {
-          "accessToken": "ya29.SQFITfoaqbP984MpY4TaJU0D-qv-f8OjUy17Zc4iEkpBq-cqBqk55FSpxdp6MAZQkk_MWR8Lw44pxw"
+          "accessToken": "ya29.SgEyOYGKnbffkSnYe0HHMmTVnBw1392L_mLYP8o1tYEsKxZzApdStTNJdtGqBII_ziuDM1AMEDl2PQ"
         },
         "provider": "google",
-        "user": 160,
-        "createdAt": "2015-04-02T08:38:20.684Z",
-        "updatedAt": "2015-04-02T08:38:20.684Z",
-        "id": 160
+        "user": 161,
+        "createdAt": "2015-04-03T05:39:28.083Z",
+        "updatedAt": "2015-04-03T08:14:04.572Z",
+        "id": 161
       }
     ],
     "projects": [
       {
-        "hash": "fdaef8bc30d3b7a9df0f073581965c7d",
-        "root": 186,
-        "createdAt": "2015-04-02T08:38:23.102Z",
-        "updatedAt": "2015-04-02T08:38:23.102Z",
-        "id": 116
+        "name": "test",
+        "hash": "c52bee6ce1bc618451f58e50534899ab",
+        "owner": 161,
+        "rootdir": 195,
+        "createdAt": "2015-04-03T07:36:06.518Z",
+        "updatedAt": "2015-04-03T07:36:06.518Z",
+        "id": 123
+      },
+      {
+        "name": "名前",
+        "hash": "d0f24d2f2596b73e80a39cf79cd9d351",
+        "owner": 161,
+        "rootdir": 196,
+        "createdAt": "2015-04-03T08:17:56.782Z",
+        "updatedAt": "2015-04-03T08:17:56.782Z",
+        "id": 124
+      },
+      {
+        "name": "あへあへ",
+        "hash": "09d6f06a245069b8591661f5f7fbb03e",
+        "owner": 161,
+        "rootdir": 197,
+        "createdAt": "2015-04-03T08:18:02.536Z",
+        "updatedAt": "2015-04-03T08:18:02.536Z",
+        "id": 125
+      },
+      {
+        "name": "うひは",
+        "hash": "a55e70ef3802ec8eea0162fdf1262de4",
+        "owner": 161,
+        "rootdir": 198,
+        "createdAt": "2015-04-03T08:18:06.084Z",
+        "updatedAt": "2015-04-03T08:18:06.084Z",
+        "id": 126
       }
     ],
     "user": [
       {
         "email": "nakata0705@gmail.com",
-        "createdAt": "2015-04-02T08:38:20.663Z",
-        "updatedAt": "2015-04-02T08:38:20.663Z",
-        "id": 160
+        "createdAt": "2015-04-03T05:39:28.063Z",
+        "updatedAt": "2015-04-03T05:39:28.064Z",
+        "id": 161
       }
     ]
   },
@@ -133,11 +198,20 @@
         "type": "string",
         "unique": true
       },
-      "root": {
+      "name": {
+        "type": "string"
+      },
+      "owner": {
+        "type": "integer",
+        "model": "user",
+        "foreignKey": true,
+        "alias": "owner"
+      },
+      "rootdir": {
         "type": "integer",
         "model": "file",
         "foreignKey": true,
-        "alias": "root"
+        "alias": "rootdir"
       },
       "id": {
         "type": "integer",
@@ -177,16 +251,16 @@
   },
   "counters": {
     "file": {
-      "id": 187
+      "id": 198
     },
     "passport": {
-      "id": 160
+      "id": 161
     },
     "projects": {
-      "id": 116
+      "id": 126
     },
     "user": {
-      "id": 160
+      "id": 161
     }
   }
 }

@@ -3,57 +3,48 @@
     "file": [
       {
         "type": "directory",
-        "path": "/28552b75cba6dce09fafecfce1b280b3",
-        "owner": 161,
+        "path": "/8d25dea994511224daac66f1a1ba38ba",
+        "owner": 183,
         "parent": null,
-        "createdAt": "2015-04-03T05:39:41.563Z",
-        "updatedAt": "2015-04-03T05:39:41.563Z",
-        "id": 189
+        "createdAt": "2015-04-04T09:13:27.914Z",
+        "updatedAt": "2015-04-04T09:13:27.914Z",
+        "id": 276
       },
       {
         "type": "directory",
-        "path": "/5a954249c7fbf80cf1ba30d3d0e8d7d5",
-        "owner": 161,
-        "parent": null,
-        "createdAt": "2015-04-03T05:43:58.404Z",
-        "updatedAt": "2015-04-03T05:43:58.404Z",
-        "id": 190
+        "path": "/8d25dea994511224daac66f1a1ba38ba/abc",
+        "owner": 183,
+        "parent": 276,
+        "createdAt": "2015-04-04T09:13:54.835Z",
+        "updatedAt": "2015-04-04T09:13:54.835Z",
+        "id": 277
       },
       {
         "type": "directory",
-        "path": "/1d832eb65446fed089639b28e46f6fc2",
-        "owner": 161,
-        "parent": null,
-        "createdAt": "2015-04-03T07:36:06.510Z",
-        "updatedAt": "2015-04-03T07:36:06.510Z",
-        "id": 195
+        "path": "/8d25dea994511224daac66f1a1ba38ba/abc/abc",
+        "owner": 183,
+        "parent": 277,
+        "createdAt": "2015-04-04T09:14:00.466Z",
+        "updatedAt": "2015-04-04T09:14:00.466Z",
+        "id": 278
       },
       {
-        "type": "directory",
-        "path": "/8afe8267d02ecc61cbc8ac86e7f9f373",
-        "owner": 161,
-        "parent": null,
-        "createdAt": "2015-04-03T08:17:56.771Z",
-        "updatedAt": "2015-04-03T08:17:56.771Z",
-        "id": 196
+        "type": "file",
+        "path": "/8d25dea994511224daac66f1a1ba38ba/abc/cde",
+        "owner": 183,
+        "parent": 277,
+        "createdAt": "2015-04-04T18:00:14.626Z",
+        "updatedAt": "2015-04-04T18:00:14.628Z",
+        "id": 279
       },
       {
-        "type": "directory",
-        "path": "/90edf449cdc5cba2b5b37d8bbdb9450e",
-        "owner": 161,
-        "parent": null,
-        "createdAt": "2015-04-03T08:18:02.533Z",
-        "updatedAt": "2015-04-03T08:18:02.533Z",
-        "id": 197
-      },
-      {
-        "type": "directory",
-        "path": "/6d68502e710000c685a4f30a2afb6f1b",
-        "owner": 161,
-        "parent": null,
-        "createdAt": "2015-04-03T08:18:06.081Z",
-        "updatedAt": "2015-04-03T08:18:06.081Z",
-        "id": 198
+        "type": "file",
+        "path": "/8d25dea994511224daac66f1a1ba38ba/abc/abc/edf",
+        "owner": 183,
+        "parent": 278,
+        "createdAt": "2015-04-04T18:00:28.800Z",
+        "updatedAt": "2015-04-04T18:00:28.800Z",
+        "id": 280
       }
     ],
     "passport": [
@@ -61,61 +52,35 @@
         "identifier": "109188779012179055842",
         "protocol": "oauth2",
         "tokens": {
-          "accessToken": "ya29.SgEyOYGKnbffkSnYe0HHMmTVnBw1392L_mLYP8o1tYEsKxZzApdStTNJdtGqBII_ziuDM1AMEDl2PQ"
+          "accessToken": "ya29.SwFsehgbrvomUJDjJfnTZP5D0tt9DFae2ihdEYfapktD5gjmnM0g4988AzR1_F-W0qbhX4kdSrDyAA"
         },
         "provider": "google",
-        "user": 161,
-        "createdAt": "2015-04-03T05:39:28.083Z",
-        "updatedAt": "2015-04-03T08:14:04.572Z",
-        "id": 161
+        "user": 183,
+        "createdAt": "2015-04-04T09:13:25.469Z",
+        "updatedAt": "2015-04-04T20:21:01.136Z",
+        "id": 183
       }
     ],
     "projects": [
       {
         "name": "test",
-        "hash": "c52bee6ce1bc618451f58e50534899ab",
-        "owner": 161,
-        "rootdir": 195,
-        "createdAt": "2015-04-03T07:36:06.518Z",
-        "updatedAt": "2015-04-03T07:36:06.518Z",
-        "id": 123
-      },
-      {
-        "name": "名前",
-        "hash": "d0f24d2f2596b73e80a39cf79cd9d351",
-        "owner": 161,
-        "rootdir": 196,
-        "createdAt": "2015-04-03T08:17:56.782Z",
-        "updatedAt": "2015-04-03T08:17:56.782Z",
-        "id": 124
-      },
-      {
-        "name": "あへあへ",
-        "hash": "09d6f06a245069b8591661f5f7fbb03e",
-        "owner": 161,
-        "rootdir": 197,
-        "createdAt": "2015-04-03T08:18:02.536Z",
-        "updatedAt": "2015-04-03T08:18:02.536Z",
-        "id": 125
-      },
-      {
-        "name": "うひは",
-        "hash": "a55e70ef3802ec8eea0162fdf1262de4",
-        "owner": 161,
-        "rootdir": 198,
-        "createdAt": "2015-04-03T08:18:06.084Z",
-        "updatedAt": "2015-04-03T08:18:06.084Z",
-        "id": 126
+        "hash": "b957cd0b4fe2b48320930bc9c7823d33",
+        "owner": 183,
+        "rootdir": 276,
+        "createdAt": "2015-04-04T09:13:27.919Z",
+        "updatedAt": "2015-04-04T09:13:27.919Z",
+        "id": 176
       }
     ],
     "user": [
       {
         "email": "nakata0705@gmail.com",
-        "createdAt": "2015-04-03T05:39:28.063Z",
-        "updatedAt": "2015-04-03T05:39:28.064Z",
-        "id": 161
+        "createdAt": "2015-04-04T09:13:25.438Z",
+        "updatedAt": "2015-04-04T09:13:25.440Z",
+        "id": 183
       }
-    ]
+    ],
+    "file_children_file__file_children": []
   },
   "schema": {
     "file": {
@@ -247,20 +212,43 @@
       "updatedAt": {
         "type": "datetime"
       }
+    },
+    "file_children_file__file_children": {
+      "id": {
+        "primaryKey": true,
+        "unique": true,
+        "autoIncrement": true,
+        "type": "integer"
+      },
+      "file_children": {
+        "type": "integer",
+        "foreignKey": true,
+        "references": "file",
+        "on": "id",
+        "via": "file_children_file"
+      },
+      "file_children_file": {
+        "type": "integer",
+        "foreignKey": true,
+        "references": "file",
+        "on": "id",
+        "via": "file_children"
+      }
     }
   },
   "counters": {
     "file": {
-      "id": 198
+      "id": 280
     },
     "passport": {
-      "id": 161
+      "id": 183
     },
     "projects": {
-      "id": 126
+      "id": 176
     },
     "user": {
-      "id": 161
-    }
+      "id": 183
+    },
+    "file_children_file__file_children": {}
   }
 }

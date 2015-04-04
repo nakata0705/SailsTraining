@@ -16,7 +16,7 @@ function viewApi(req, res) {
         console.log(projects);
         if (err) {
             console.error(err);
-            res.json(500, {});
+            res.json(500, { error: err.message });
         }
         res.json(200, projects);
     });
@@ -31,19 +31,30 @@ function deleteProject(hash, owner, callback) {
 function createProject(name, owner, callback) {
     var hash = crypto.createHash('md5').update(uuid.v1()).digest('hex');
 
-    FileController.createDirectory("NEW_PROJECT_fLi1GutAbO4aMveH", hash, owner, function(err, newfile) { // Use temporary project ID "0" here
+    Project.find({ where: { owner: owner, name: name } }).exec(function (err, projects) {
         if (err) {
-            callback(err, undefined);
+            console.error(err);
+            callback(new Error("E_PROJECT_DBERROR"), undefined);
+        }
+        else if (projects && projects.length > 0) {
+            callback(new Error("E_PROJECT_ALREADYEXISTS"), undefined);
         }
         else {
-            Project.create({ name: name, hash: hash, owner: owner, rootdir: newfile }).exec(function (err, newproject) {
+            FileController.createDirectory("NEW_PROJECT_fLi1GutAbO4aMveH", hash, owner, function(err, newfile) { // Use temporary project ID "0" here
                 if (err) {
-                    File.delete(newfile.id, function (err) {
-                        callback(err, undefined);
-                    });
+                    callback(new Error("E_PROJET_FSERROR"), undefined);
                 }
                 else {
-                    callback(undefined, newproject);
+                    Project.create({ name: name, hash: hash, owner: owner, rootdir: newfile }).exec(function (err, newproject) {
+                        if (err) {
+                            File.delete(newfile.id, function (err) {
+                                callback(new Error("E_PROJECT_DBERROR"), undefined);
+                            });
+                        }
+                        else {
+                            callback(undefined, newproject);
+                        }
+                    });
                 }
             });
         }
@@ -56,14 +67,14 @@ function actionApi(req, res) {
     var user = req.session.passport.user || req.options.user;
 
     if (action == undefined) {
-        res.json(500, { error: "E_NOACTION" });
+        res.json(500, { error: "E_NOACTION", cause: "ProjectController.actionApi" });
     }
 
     switch (action) {
         case "delete":
             deleteProject(actionparam, user, function(err) {
                 if (err) {
-                    res.json(500, err);
+                    res.json(500, { error: err.message });
                 }
                 else {
                     res.json(200, {});
@@ -73,7 +84,8 @@ function actionApi(req, res) {
         case "create":
             createProject(actionparam, user, function(err, project) {
                 if (err) {
-                    res.json(500, err);
+                    console.log(err);
+                    res.json(500, { error: err.message });
                 }
                 else {
                     res.json(200, project);

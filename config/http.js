@@ -87,7 +87,7 @@ module.exports.http = {
 
 };
 
-var express = require('express');
+/*var express = require('express');
 
 module.exports.express = {
     customMiddleware: function (app) {
@@ -96,4 +96,4 @@ module.exports.express = {
         console.log(process.cwd() + 'assets/projects');
         app.use('/projects', express.static(process.cwd() + '/assets/projects'));
     }
-};
+};*/

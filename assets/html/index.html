@@ -13,32 +13,64 @@
 </head>
 <body>
 <div id="example" ng-app="KendoDemos">
-    <div class="demo-section k-content" ng-controller="MyCtrl">
-        <div class="box-col">
-            <h4>Remote data</h4>
-            <select kendo-drop-down-list
-                    k-data-text-field="'name'"
-                    k-data-value-field="'id'"
-                    k-data-source="projectDataSource"
-                    style="width: 200px"></select>
+    <div class="demo-section k-content" ng-controller="MyController">
+        <select kendo-drop-down-list
+                k-data-text-field="'name'"
+                k-data-value-field="'id'"
+                k-data-source="projectDataSource"
+                style="width: 200px"></select>
+        <div id="treeWidget"
+             kendo-tree-view="tree"
+             k-data-source="treeData"
+             k-on-change="selectedItem = dataItem"
+             k-ng-delay="treeData">
+            <span k-template>{{ dataItem.path }}</span>
         </div>
     </div>
 </div>
 
 <script>
     angular.module("KendoDemos", [ "kendo.directives" ])
-            .controller("MyCtrl", function($scope){
+            .controller("MyController", function($scope, $http) {
                 $scope.projectDataSource = {
                     transport: {
                         read: {
                             dataType: "json",
-                            url: "http://localhost:1337/projects/"
+                            url: "../projects/"
                         }
                     }
                 };
-            })
+
+                $http({ method: "GET", url: "http://localhost:1337/projects/8d25dea994511224daac66f1a1ba38ba" })
+                        .success(function(result) {
+                            console.log(result.data);
+                            $scope.treeData = new kendo.data.HierarchicalDataSource({
+                                data: result.data
+                            });
+                        });
+
+                /*$scope.treeData = new kendo.data.HierarchicalDataSource({ data: [
+                    { text: "Item 1" },
+                    { text: "Item 2", items: [
+                        { text: "SubItem 2.1" },
+                        { text: "SubItem 2.2" }
+                    ] },
+                    { text: "Item 3" }
+                ]});*/
+            });
 </script>
 
+<style>
+    #treeview .k-sprite {
+        background-image: url("../kendoui/examples/content/web/treeview/coloricons-sprite.png");
+    }
+
+    .rootfolder { background-position: 0 0; }
+    .folder { background-position: 0 -16px; }
+    .pdf { background-position: 0 -32px; }
+    .html { background-position: 0 -48px; }
+    .image { background-position: 0 -64px; }
+</style>
 
 </body>
 </html>

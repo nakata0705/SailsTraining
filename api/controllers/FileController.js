@@ -29,7 +29,6 @@ function create(name, type, owner, parentpath, callback) {
         },
         function (arg1, callback) {
             parentfile = arg1; // Finalize parentfile
-            console.log("parentfile %o " + parentfile);
 
             if (parentfile && parentfile.type == "directory") {
                 newpath = parentfile.path + "/" + newname; // Finalize newpath
@@ -45,14 +44,12 @@ function create(name, type, owner, parentpath, callback) {
             }
         },
         function (arg1, callback) {
-            console.log("newpath " + newpath + " newtype " + newtype + " owner " + owner + " parent " + parentfile);
             File.create({
                 type: newtype,
                 path: newpath,
                 owner: owner,
                 parent: parentfile
             }, function (err, newfile) {
-                console.log("File.create %o", newfile);
                 callback(err, newfile);
             });
         }
@@ -152,33 +149,38 @@ function actionApi(req, res) {
 
 function viewApi(req, res) {
     var path = req.param('path');
-    console.log("path " + path);
 
     if (path ==  undefined) {
-        res.json(500, { error: "E_NOFILE"});
+        res.json(500, { error: "E_NOFILE", cause: "FileController.viewApi" });
     }
     else {
-        File.findOne({ path: path }).populate('children').exec(function(err, foundFile) {
+        File.findOne({ path: path }).exec(function(err, foundFile) {
             if (err) {
                 res.json(500, err);
             }
             else if (foundFile == undefined) {
-                res.json(500, {error: "E_NOFILE"});
+                res.json(500, {error: "E_NOFILE", cause: "FileController.viewApi" });
             }
             else {
-                if (foundFile.type == "directory") {
-                    res.json(200, foundFile.children);
-                }
-                else {
-                    res.sendfile(sails.config.myconf.projectsroot + foundFile.path, {}, function(err) {
-                        if (err) {
-                            res.json(500, err);
-                        }
-                        else {
-                            res.json(200, {});
-                        }
-                    });
-                }
+                File.populateChildren(foundFile, function(err) {
+                    if (err) {
+                        res.json(500, err)
+                    }
+                    else if (foundFile.type == "directory") {
+                        var data = { data: foundFile.items };
+                        res.json(200, data);
+                    }
+                    else {
+                        res.sendfile(sails.config.myconf.projectsroot + foundFile.path, {}, function (err) {
+                            if (err) {
+                                res.json(500, err);
+                            }
+                            else {
+                                res.json(200, {});
+                            }
+                        });
+                    }
+                });
             }
         });
     }

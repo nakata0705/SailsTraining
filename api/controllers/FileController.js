@@ -14,8 +14,6 @@ function create(name, type, owner, parentpath, callback) {
     var newpath = null;
     var parentfile = null;
 
-    console.log("name " + name + " type " + type + " owner " + owner + " parentpath " + parentpath);
-
     async.waterfall([
         function (callback) {
             File.findOne({ path: parentpath }).exec(function(err, foundFile) {
@@ -35,7 +33,7 @@ function create(name, type, owner, parentpath, callback) {
                 callback(undefined, undefined);
             }
             else if (parentpath == "NEW_PROJECT_fLi1GutAbO4aMveH") {
-                newpath = "/" + crypto.createHash('md5').update(uuid.v1()).digest('hex'); // This is a project name. Use hash as the directory name
+                newpath = "/" + newname; // This is a project name. Use hash as the directory name
                 newtype = 'directory'; // We are creating a new project root directory
                 callback(undefined, undefined);
             }
@@ -104,46 +102,49 @@ function actionApi(req, res) {
     var actionparam = req.param('actionparam') || req.options.actionparam;
     var user = req.session.passport.user || req.options.user;
 
+    console.log("FileController.actionApi");
+
     if (path == undefined) {
         res.json(500, { error: "E_NOPATH" });
     }
     else if (action == undefined) {
         res.json(500, { error: "E_NOACTION" });
     }
-
-    switch (action) {
-        case "delete":
-            deleteFile(path, user, function(err) {
-                if (err) {
-                    res.json(500, err);
-                }
-                else {
-                    res.json(200, {});
-                }
-            });
-            break;
-        case "createfile":
-            createFile(path, actionparam, user, function(err, file) {
-                if (err) {
-                    res.json(500, err);
-                }
-                else {
-                    res.json(200, file);
-                }
-            });
-            break;
-        case "createdirectory":
-            createDirectory(path, actionparam, user, function(err, file) {
-                if (err) {
-                    res.json(500, err);
-                }
-                else {
-                    res.json(200, file);
-                }
-            });
-            break;
-        default:
-            res.json(500, { error: "E_UNKNOWNACTION_" + action })
+    else {
+        switch (action) {
+            case "delete":
+                deleteFile(path, user, function (err) {
+                    if (err) {
+                        res.json(500, {err: err});
+                    }
+                    else {
+                        res.json(200, {err: null});
+                    }
+                });
+                break;
+            case "createfile":
+                createFile(path, actionparam, user, function (err, file) {
+                    if (err) {
+                        res.json(500, {err: err});
+                    }
+                    else {
+                        res.json(200, {err: null, result: file});
+                    }
+                });
+                break;
+            case "createdirectory":
+                createDirectory(path, actionparam, user, function (err, file) {
+                    if (err) {
+                        res.json(500, {err: err});
+                    }
+                    else {
+                        res.json(200, {err: null, result: file});
+                    }
+                });
+                break;
+            default:
+                res.json(500, {error: "E_UNKNOWNACTION_" + action})
+        }
     }
 }
 
@@ -156,27 +157,27 @@ function viewApi(req, res) {
     else {
         File.findOne({ path: path }).exec(function(err, foundFile) {
             if (err) {
-                res.json(500, err);
+                res.json(500, {err: err});
             }
             else if (foundFile == undefined) {
-                res.json(500, {error: "E_NOFILE", cause: "FileController.viewApi" });
+                res.json(500, {err: new Error("E_NOFILE")});
             }
             else {
                 File.populate(foundFile, function (err) {
                     if (err) {
-                        res.json(500, err)
+                        res.json(500, {err: err})
                     }
                     else if (foundFile.type == "directory") {
                         var data = { data: foundFile.items };
-                        res.json(200, data);
+                        res.json(200, {err: null, data: data});
                     }
                     else {
                         res.sendfile(sails.config.myconf.projectsroot + foundFile.path, {}, function (err) {
                             if (err) {
-                                res.json(500, err);
+                                res.json(500, {err: err});
                             }
                             else {
-                                res.json(200, {});
+                                res.json(200, {err: null});
                             }
                         });
                     }

@@ -56,11 +56,11 @@ module.exports.routes = {
   'get /auth/:provider/callback': 'AuthController.callback',
   'get /auth/:provider/:action': 'AuthController.callback',
 
-  'get r|^/projects/!(.+?)/(.+?)$|action,actionparam': 'ProjectController.action',
+  'get r|^/projects/(.+?)/!(.+?)$|actionparam,action': 'ProjectController.action',
   'get r|^/projects/!(.+?)$|action': 'ProjectController.action',
   'get r|^/projects/$|': 'ProjectController.view',
 
-  'get r|^/projects(/.+)/!(.+?)/(.+?)$|path,action,actionparam': 'FileController.action',
-  'get r|^/projects(/.+)/!(.+?)$|path,action': 'FileController.action',
-  'get r|^/projects(/.+)$|path': 'FileController.view'
+  'get r|^/files(/.+)/!(.+?)/(.+?)$|path,action,actionparam': 'FileController.action',
+  'get r|^/files(/.+)/!(.+?)$|path,action': 'FileController.action',
+  'get r|^/files(/.+)$|path': 'FileController.view'
 };

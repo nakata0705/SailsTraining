@@ -11,11 +11,11 @@ var mkdirp = require('mkdirp');
 var rimraf = require('rimraf');
 
 function beforeCreate(values, callback) {
-    value.path = value.path.replace(/(\n|\r|\/)+$/, '');
+    values.path = values.path.replace(/(\n|\r|\/)+$/, '');
+    callback();
 }
 
 function afterCreate(newFile, callback) {
-    //
     switch (newFile.type) {
         case "directory":
             mkdirp(sails.config.myconf.projectsroot + newFile.path, function (err) {
@@ -61,9 +61,6 @@ function populate(file, callback) {
             file["spriteCssClass"] = "folder";
         }
         else if (file["name"].match(/^(.*)\.(.*)$/)) {
-            console.log("name " + file["name"]);
-            console.log("$1 " + RegExp.$1 + "$2 " + RegExp.$2);
-
             switch (RegExp.$2) {
                 case "pdf":
                     file["spriteCssClass"] = "pdf";

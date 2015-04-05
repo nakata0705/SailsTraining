@@ -12,7 +12,7 @@ var FileController = require('./FileController');
 function viewApi(req, res) {
     var owner = req.session.passport.user || req.options.user;
 
-    Project.find({ where: { owner: owner } }).exec(function (err, projects) {
+    Project.find({where: {owner: owner}}).populate('rootdir').exec(function (err, projects) {
         console.log(projects);
         if (err) {
             console.error(err);
@@ -66,36 +66,47 @@ function actionApi(req, res) {
     var actionparam = req.param('actionparam') || req.options.actionparam;
     var user = req.session.passport.user || req.options.user;
 
+    console.log(action);
+    console.log(actionparam);
+
+
     if (action == undefined) {
-        res.json(500, { error: "E_NOACTION", cause: "ProjectController.actionApi" });
+        res.json(500, new Error("E_PROJECT_NOACTION"));
     }
-
-    switch (action) {
-        case "delete":
-            deleteProject(actionparam, user, function(err) {
-                if (err) {
-                    res.json(500, { error: err.message });
-                }
-                else {
-                    res.json(200, {});
-                }
-            });
-            break;
-        case "create":
-            createProject(actionparam, user, function(err, project) {
-                if (err) {
-                    console.log(err);
-                    res.json(500, { error: err.message });
-                }
-                else {
-                    res.json(200, project);
-                }
-            });
-            break;
-        default:
-            res.json(500, { error: "E_UNKNOWNACTION_" + action })
+    else {
+        switch (action) {
+            case "delete":
+                deleteProject(actionparam, user, function (err, deletedprojects) {
+                    if (err) {
+                        res.json(500, {err: err});
+                    }
+                    else if (deletedprojects && deletedprojects.length == 0) {
+                        res.json(500, {err: new Error("E_PROJECT_NODELETETARGET")});
+                    }
+                    else {
+                        console.log(deletedprojects);
+                        res.json(200, {err: null, result: deletedprojects});
+                    }
+                });
+                break;
+            case "create":
+                createProject(actionparam, user, function (err, project) {
+                    if (err) {
+                        console.log(err);
+                        res.json(500, {err: err});
+                    }
+                    else if (project == undefined) {
+                        res.json(500, {err: new Error("E_PROJECT_NOCREATERESULT")});
+                    }
+                    else {
+                        res.json(200, {err: null, result: project});
+                    }
+                });
+                break;
+            default:
+                res.json(500, {err: new Error("E_PROJECT_UNKNOWNACTION_" + action)});
+        }
     }
-
 }
 
 var ProjectController = {

@@ -33,5 +33,5 @@ module.exports.models = {
 };
 
 if (process.env.NODE_ENV === 'test') {
-    module.exports.models.migrate = 'safe';
+    module.exports.models.migrate = 'drop';
 }

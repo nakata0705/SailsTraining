@@ -30,7 +30,7 @@
       },
       {
         "type": "file",
-        "path": "/8d25dea994511224daac66f1a1ba38ba/abc/cde",
+        "path": "/8d25dea994511224daac66f1a1ba38ba/abc/cde.pdf",
         "owner": 183,
         "parent": 277,
         "createdAt": "2015-04-04T18:00:14.626Z",
@@ -39,12 +39,21 @@
       },
       {
         "type": "file",
-        "path": "/8d25dea994511224daac66f1a1ba38ba/abc/abc/edf",
+        "path": "/8d25dea994511224daac66f1a1ba38ba/abc/abc/edf.jpeg",
         "owner": 183,
         "parent": 278,
         "createdAt": "2015-04-04T18:00:28.800Z",
         "updatedAt": "2015-04-04T18:00:28.800Z",
         "id": 280
+      },
+      {
+        "type": "directory",
+        "path": "/d589b47302dd660df922255c83e1a808",
+        "owner": 19,
+        "parent": null,
+        "createdAt": "2015-04-05T05:34:15.885Z",
+        "updatedAt": "2015-04-05T05:34:15.885Z",
+        "id": 281
       }
     ],
     "passport": [
@@ -52,12 +61,12 @@
         "identifier": "109188779012179055842",
         "protocol": "oauth2",
         "tokens": {
-          "accessToken": "ya29.SwFsehgbrvomUJDjJfnTZP5D0tt9DFae2ihdEYfapktD5gjmnM0g4988AzR1_F-W0qbhX4kdSrDyAA"
+          "accessToken": "ya29.TAGJ1oD8l35ejL3uGVtY6VAQ27rFZ5lZ5BoAeM0jtbWWwVt3UYDXzrkhpQxUSjd11xD3BzEgE75_4w"
         },
         "provider": "google",
         "user": 183,
         "createdAt": "2015-04-04T09:13:25.469Z",
-        "updatedAt": "2015-04-04T20:21:01.136Z",
+        "updatedAt": "2015-04-05T06:55:13.367Z",
         "id": 183
       }
     ],
@@ -70,6 +79,15 @@
         "createdAt": "2015-04-04T09:13:27.919Z",
         "updatedAt": "2015-04-04T09:13:27.919Z",
         "id": 176
+      },
+      {
+        "name": "Test",
+        "hash": "c84502abdaff9ab5898446720b709585",
+        "owner": 19,
+        "rootdir": 281,
+        "createdAt": "2015-04-05T05:34:15.891Z",
+        "updatedAt": "2015-04-05T05:34:15.891Z",
+        "id": 177
       }
     ],
     "user": [
@@ -238,13 +256,13 @@
   },
   "counters": {
     "file": {
-      "id": 280
+      "id": 281
     },
     "passport": {
       "id": 183
     },
     "projects": {
-      "id": 176
+      "id": 177
     },
     "user": {
       "id": 183

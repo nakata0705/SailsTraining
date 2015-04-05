@@ -162,7 +162,7 @@ function viewApi(req, res) {
                 res.json(500, {error: "E_NOFILE", cause: "FileController.viewApi" });
             }
             else {
-                File.populateChildren(foundFile, function(err) {
+                File.populate(foundFile, function (err) {
                     if (err) {
                         res.json(500, err)
                     }

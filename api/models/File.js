@@ -10,7 +10,12 @@ var fs = require('fs');
 var mkdirp = require('mkdirp');
 var rimraf = require('rimraf');
 
+function beforeCreate(values, callback) {
+    value.path = value.path.replace(/(\n|\r|\/)+$/, '');
+}
+
 function afterCreate(newFile, callback) {
+    //
     switch (newFile.type) {
         case "directory":
             mkdirp(sails.config.myconf.projectsroot + newFile.path, function (err) {
@@ -48,7 +53,40 @@ function afterDestroy(destroyedFiles, callback) {
     });
 }
 
-function populateChildren(file, callback) {
+function populate(file, callback) {
+    if (file.path.match(/^(.*)\/(.*)$/)) {
+        file["name"] = RegExp.$2;
+
+        if (file.type == "directory") {
+            file["spriteCssClass"] = "folder";
+        }
+        else if (file["name"].match(/^(.*)\.(.*)$/)) {
+            console.log("name " + file["name"]);
+            console.log("$1 " + RegExp.$1 + "$2 " + RegExp.$2);
+
+            switch (RegExp.$2) {
+                case "pdf":
+                    file["spriteCssClass"] = "pdf";
+                    break;
+                case "jpeg":
+                case "jpg":
+                    file["spriteCssClass"] = "image";
+                    break;
+                default:
+                    file["spriteCssClass"] = "html";
+            }
+        }
+        else {
+            file["spriteCssClass"] = "html";
+        }
+    }
+    else {
+        file["name"] = "";
+        file["spriteCssClass"] = "html";
+    }
+
+
+
     File.find({ parent: file.id }).exec(function(err, files) {
         if (err || files　== undefined) {
             callback(err);
@@ -61,7 +99,7 @@ function populateChildren(file, callback) {
             async.whilst(function() { return count < files.length },
                 function(callback2) {
                     var child = Object(files[count]);
-                    File.populateChildren(child, function (err) {
+                    File.populate(child, function (err) {
                         count++;
                         callback2(err);
                     });
@@ -82,7 +120,8 @@ module.exports = {
         parent: { model: "file" }
     },
 
+    beforeCreate: beforeCreate,
     afterCreate: afterCreate,
     afterDestroy: afterDestroy,
-    populateChildren: populateChildren
+    populate: populate
 };

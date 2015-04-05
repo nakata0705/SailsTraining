@@ -19,12 +19,13 @@
                 k-data-value-field="'id'"
                 k-data-source="projectDataSource"
                 style="width: 200px"></select>
-        <div id="treeWidget"
+
+        <div id="treeview-sprites"
              kendo-tree-view="tree"
              k-data-source="treeData"
              k-on-change="selectedItem = dataItem"
              k-ng-delay="treeData">
-            <span k-template>{{ dataItem.path }}</span>
+            <span k-template>{{ dataItem.name }}</span>
         </div>
     </div>
 </div>
@@ -48,20 +49,11 @@
                                 data: result.data
                             });
                         });
-
-                /*$scope.treeData = new kendo.data.HierarchicalDataSource({ data: [
-                    { text: "Item 1" },
-                    { text: "Item 2", items: [
-                        { text: "SubItem 2.1" },
-                        { text: "SubItem 2.2" }
-                    ] },
-                    { text: "Item 3" }
-                ]});*/
             });
 </script>
 
 <style>
-    #treeview .k-sprite {
+    #treeview-sprites .k-sprite {
         background-image: url("../kendoui/examples/content/web/treeview/coloricons-sprite.png");
     }
 

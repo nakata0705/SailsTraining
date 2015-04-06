@@ -5,6 +5,11 @@
  * @docs        :: http://sailsjs.org/#!documentation/models
  */
 
+var async = require('async');
+var fs = require('fs');
+var mkdirp = require('mkdirp');
+var rimraf = require('rimraf');
+
 module.exports = {
 
     tableName: "projects",
@@ -12,12 +17,12 @@ module.exports = {
         hash: {type: "string", unique: true, required: true },
         name: {type: "string", required: true },
         owner: { model: "user", required: true },
-        rootdir: {model: 'file', required: true}
     },
 
     afterDestroy: function (destroyedProjects, callback) {
         async.each(destroyedProjects, function (project, callback) {
-            File.destroy(project.rootdir).exec(function (err) {
+            var target = sails.config.myconf.projectsroot + "/" + project.hash;
+            rimraf(target, function (err) {
                 return callback(err);
             });
         }, function (err) {

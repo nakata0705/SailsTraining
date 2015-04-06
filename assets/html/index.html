@@ -42,11 +42,11 @@
                     }
                 };
 
-                $http({ method: "GET", url: "http://localhost:1337/projects/8d25dea994511224daac66f1a1ba38ba" })
+                $http({method: "GET", url: "http://localhost:1337/projects/04984191afd65e0884a5cac98ee15150"})
                         .success(function(result) {
-                            console.log(result.data);
+                            console.log(result);
                             $scope.treeData = new kendo.data.HierarchicalDataSource({
-                                data: result.data
+                                data: result
                             });
                         });
             });

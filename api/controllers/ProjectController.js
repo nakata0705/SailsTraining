@@ -7,23 +7,104 @@
 
 var uuid = require('node-uuid');
 var crypto = require('crypto');
-var FileController = require('./FileController');
+//var FileController = require('./FileController');
 
-function viewApi(req, res) {
-    var owner = req.session.passport.user || req.options.user;
+var async = require('async');
+var fs = require('fs');
+var path = require('path');
+var mkdirp = require('mkdirp');
+var rimraf = require('rimraf');
 
-    Project.find({where: {owner: owner}}).populate('rootdir').exec(function (err, projects) {
-        console.log(projects);
-        if (err) {
-            console.error(err);
-            res.json(500, { error: err.message });
-        }
-        res.json(200, projects);
+function getFilelist(p, callback) {
+    var results = [];
+
+    fs.readdir(p, function (err, files) {
+        if (err)
+            throw err;
+
+        var pending = files.length;
+        if (!pending)
+            return callback(null, results);
+
+        files.map(function (file) {
+            return path.join(p, file);
+        }).filter(function (file) {
+            if (fs.statSync(file).isDirectory()) {
+                getFilelist(file, function (err, res) {
+                    results.push({
+                        name: path.basename(file),
+                        path: path.relative(sails.config.myconf.projectsroot, file),
+                        items: res,
+                        spriteCssClass: "folder"
+                    });
+                    if (!--pending)
+                        callback(null, results);
+                });
+            }
+            return fs.statSync(file).isFile();
+        }).forEach(function (file) {
+            var stat = fs.statSync(file);
+            var spriteCssClass = "html";
+
+            switch (path.extname(file)) {
+                case ".pdf":
+                    spriteCssClass = "pdf";
+                    break;
+                case ".jpeg":
+                case ".jpg":
+                case ".png":
+                    spriteCssClass = "image";
+                    break;
+                case ".html":
+                case ".htm":
+                    spriteCssClass = "html";
+                    break;
+            }
+            results.push({
+                name: path.basename(file),
+                path: path.relative(sails.config.myconf.projectsroot, file),
+                size: stat.size,
+                spriteCssClass: spriteCssClass
+            });
+            if (!--pending) callback(null, results);
+        });
+
     });
 }
 
+function defaultActionApi(req, res) {
+    var param = req.param('param') || req.options.param;
+    var owner = req.session.passport.user || req.options.user;
+
+    console.log({function: "defaultActionApi", param: param});
+
+    if (param == undefined) {
+        Project.find({where: {owner: owner}}).exec(function (err, projects) {
+            console.log(projects);
+            if (err) {
+                console.error(err);
+                res.json(500, {error: err});
+            }
+            res.json(200, projects);
+        });
+    }
+    else {
+        var path = sails.config.myconf.projectsroot + "/" + param;
+        getFilelist(path, function (err, results) {
+            if (err) {
+                console.error(err);
+                res.json(500, {error: err});
+            }
+            else {
+                res.json(200, results);
+            }
+        });
+    }
+
+}
+
 function deleteProject(hash, owner, callback) {
-    Project.destroy({ hash: hash, owner: owner }).exec(function (err, deletedProjects) {
+    Project.destroy({hash: hash, owner: owner}).exec(function (err, deletedProjects) {
         callback(err, deletedProjects);
     });
 }
@@ -31,24 +112,25 @@ function deleteProject(hash, owner, callback) {
 function createProject(name, owner, callback) {
     var hash = crypto.createHash('md5').update(uuid.v1()).digest('hex');
 
-    Project.find({ where: { owner: owner, name: name } }).exec(function (err, projects) {
+    Project.find({where: {owner: owner, name: name}}).exec(function (err, projects) {
         if (err) {
             console.error(err);
-            callback(new Error("E_PROJECT_DBERROR"), undefined);
+            callback(new Error("E_PROJECT_DB_ERROR"), undefined);
         }
         else if (projects && projects.length > 0) {
-            callback(new Error("E_PROJECT_ALREADYEXISTS"), undefined);
+            callback(new Error("E_PROJECT_ALREADY_EXISTS"), undefined);
         }
         else {
-            FileController.createDirectory("NEW_PROJECT_fLi1GutAbO4aMveH", hash, owner, function(err, newfile) { // Use temporary project ID "0" here
+            var newDirectory = sails.config.myconf.projectsroot + "/" + hash;
+            mkdirp(newDirectory, function (err) { // Use temporary project ID "0" here
                 if (err) {
-                    callback(new Error("E_PROJET_FSERROR"), undefined);
+                    callback(new Error("E_PROJECT_FSERROR"), undefined);
                 }
                 else {
-                    Project.create({ name: name, hash: hash, owner: owner, rootdir: newfile }).exec(function (err, newproject) {
+                    Project.create({name: name, hash: hash, owner: owner}).exec(function (err, newproject) {
                         if (err) {
-                            File.delete(newfile.id, function (err) {
-                                callback(new Error("E_PROJECT_DBERROR"), undefined);
+                            rimraf(newDirectory, function (err) {
+                                callback(new Error("E_PROJECT_FS_ERROR"), undefined);
                             });
                         }
                         else {
@@ -63,12 +145,10 @@ function createProject(name, owner, callback) {
 
 function actionApi(req, res) {
     var action = req.param('action') || req.options.action;
-    var actionparam = req.param('actionparam') || req.options.actionparam;
+    var param = req.param('param') || req.options.param;
     var user = req.session.passport.user || req.options.user;
 
-    console.log(action);
-    console.log(actionparam);
-
+    console.log({function: "actionApi", action: action, param: param});
 
     if (action == undefined) {
         res.json(500, new Error("E_PROJECT_NOACTION"));
@@ -76,7 +156,7 @@ function actionApi(req, res) {
     else {
         switch (action) {
             case "delete":
-                deleteProject(actionparam, user, function (err, deletedprojects) {
+                deleteProject(param, user, function (err, deletedprojects) {
                     if (err) {
                         res.json(500, {err: err});
                     }
@@ -90,7 +170,7 @@ function actionApi(req, res) {
                 });
                 break;
             case "create":
-                createProject(actionparam, user, function (err, project) {
+                createProject(param, user, function (err, project) {
                     if (err) {
                         console.log(err);
                         res.json(500, {err: err});
@@ -109,9 +189,59 @@ function actionApi(req, res) {
     }
 }
 
+function fileActionApi(req, res) {
+    var action = req.param('action') || req.options.action;
+    var param = req.param('param') || req.options.param;
+    var user = req.session.passport.user || req.options.user;
+
+    console.log({function: "fileActionApi", action: action, param: param});
+
+    if (action == undefined) {
+        res.json(500, new Error("E_PROJECT_NOACTION"));
+    }
+    else {
+        switch (action) {
+            case "delete":
+                rimraf(sails.config.myconf.projectsroot + "/" + param, function (err) {
+                    if (err) {
+                        res.json(500, {err: err});
+                    }
+                    else {
+                        res.json(200, {err: null, result: sails.config.myconf.projectsroot + param});
+                    }
+                });
+                break;
+            case "createFile":
+                fs.open(sails.config.myconf.projectsroot + "/" + param, 'w', function (err) {
+                    if (err) {
+                        res.json(500, {err: err});
+                    }
+                    else {
+                        res.json(200, {err: null, result: sails.config.myconf.projectsroot + param});
+                    }
+                });
+                break;
+            case "createDirectory":
+                mkdirp(sails.config.myconf.projectsroot + "/" + param, function (err) {
+                    if (err) {
+                        res.json(500, {err: err});
+                        callback(err);
+                    }
+                    else {
+                        res.json(200, {err: null, result: sails.config.myconf.projectsroot + param});
+                    }
+                });
+                break;
+            default:
+                res.json(500, {err: new Error("E_PROJECT_UNKNOWNACTION_" + action)});
+        }
+    }
+}
+
 var ProjectController = {
     action: actionApi,
-    view: viewApi
+    fileAction: fileActionApi,
+    defaultAction: defaultActionApi
 };
 
 module.exports = ProjectController;

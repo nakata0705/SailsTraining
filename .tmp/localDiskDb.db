@@ -2,9 +2,38 @@
   "data": {
     "file_children_file__file_children": [],
     "file": [],
-    "passport": [],
-    "projects": [],
-    "user": []
+    "passport": [
+      {
+        "identifier": "109188779012179055842",
+        "protocol": "oauth2",
+        "tokens": {
+          "accessToken": "ya29.TQF5e_GV71pq4brq46NiPNW7GZ_pHB3F1JT_Fza8Ak_t0JwhMPElGVn_UzGi3FcNN5oNdcpBKeRqfQ"
+        },
+        "provider": "google",
+        "user": 184,
+        "createdAt": "2015-04-06T04:53:37.366Z",
+        "updatedAt": "2015-04-06T06:30:14.222Z",
+        "id": 184
+      }
+    ],
+    "projects": [
+      {
+        "name": "Test",
+        "hash": "04984191afd65e0884a5cac98ee15150",
+        "owner": 184,
+        "createdAt": "2015-04-06T04:55:16.301Z",
+        "updatedAt": "2015-04-06T04:55:16.301Z",
+        "id": 233
+      }
+    ],
+    "user": [
+      {
+        "email": "nakata0705@gmail.com",
+        "createdAt": "2015-04-06T04:53:37.323Z",
+        "updatedAt": "2015-04-06T04:53:37.323Z",
+        "id": 184
+      }
+    ]
   },
   "schema": {
     "file_children_file__file_children": {
@@ -118,12 +147,6 @@
         "foreignKey": true,
         "alias": "owner"
       },
-      "rootdir": {
-        "type": "integer",
-        "model": "file",
-        "foreignKey": true,
-        "alias": "rootdir"
-      },
       "id": {
         "type": "integer",
         "autoIncrement": true,
@@ -162,16 +185,16 @@
   },
   "counters": {
     "file": {
-      "id": 311
+      "id": 312
     },
     "passport": {
-      "id": 183
+      "id": 184
     },
     "projects": {
-      "id": 207
+      "id": 233
     },
     "user": {
-      "id": 183
+      "id": 184
     },
     "file_children_file__file_children": {}
   }

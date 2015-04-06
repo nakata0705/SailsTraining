@@ -56,11 +56,7 @@ module.exports.routes = {
   'get /auth/:provider/callback': 'AuthController.callback',
   'get /auth/:provider/:action': 'AuthController.callback',
 
-  'get r|^/projects/(.+?)/!(.+?)$|actionparam,action': 'ProjectController.action',
-  'get r|^/projects/!(.+?)$|action': 'ProjectController.action',
-  'get r|^/projects/$|': 'ProjectController.view',
-
-  'get r|^/files(/.+)/!(.+?)/(.+?)$|path,action,actionparam': 'FileController.action',
-  'get r|^/files(/.+)/!(.+?)$|path,action': 'FileController.action',
-  'get r|^/files(/.+)$|path': 'FileController.view'
+  'get r|^/projects/([^/]+)/!(.+)/?$|param,action': 'ProjectController.action',
+  'get r|^/projects/(.+)/!(.+)/?$|param,action': 'ProjectController.fileAction',
+  'get r|^/projects/(.*?)/?$|param': 'ProjectController.defaultAction'
 };

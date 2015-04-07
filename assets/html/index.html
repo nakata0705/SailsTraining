@@ -16,9 +16,13 @@
     <div class="demo-section k-content" ng-controller="MyController">
         <select kendo-drop-down-list
                 k-data-text-field="'name'"
-                k-data-value-field="'id'"
+                k-data-value-field="'hash'"
                 k-data-source="projectDataSource"
+                k-on-select="selectProject()"
+                ng-model="project_selected"
                 style="width: 200px"></select>
+
+        <kendo-button class="k-primary" ng-click="win1.open()">Create a new project</kendo-button>
 
         <div id="treeview-sprites"
              kendo-tree-view="tree"
@@ -27,28 +31,58 @@
              k-ng-delay="treeData">
             <span k-template>{{ dataItem.name }}</span>
         </div>
+
+        <div kendo-window="win1" k-title="'New Project'" k-visible="false">
+            <label for="project_name">Project Name:</label>
+            <input id="project_name" placeholder="Project Name" ng-model="project_name"/>
+            <kendo-button ng-click="win1.close()">Cancel</kendo-button>
+            <kendo-button class="k-primary" ng-click="createProject()">Create!</kendo-button>
+        </div>
     </div>
 </div>
 
 <script>
     angular.module("KendoDemos", [ "kendo.directives" ])
             .controller("MyController", function($scope, $http) {
-                $scope.projectDataSource = {
+                $scope.projectDataSource = new kendo.data.DataSource({
                     transport: {
                         read: {
                             dataType: "json",
                             url: "../projects/"
                         }
                     }
+                });
+
+                $scope.updateTreeView = function () {
+                    console.log(JSON.stringify($scope.project_selected));
+                    if ($scope.project_selected) {
+                        $http.get("http://localhost:1337/projects/" + $scope.project_selected).
+                                success(function (result) {
+                                    console.log(result);
+                                    $scope.treeData = new kendo.data.HierarchicalDataSource({
+                                        data: result
+                                    });
+                                });
+                    }
                 };
 
-                $http({method: "GET", url: "http://localhost:1337/projects/04984191afd65e0884a5cac98ee15150"})
-                        .success(function(result) {
-                            console.log(result);
-                            $scope.treeData = new kendo.data.HierarchicalDataSource({
-                                data: result
+                $scope.selectProject = function () {
+                    $scope.updateTreeView();
+                };
+
+                $scope.createProject = function () {
+                    $http.get("http://localhost:1337/projects/" + $scope.project_name + "/!create")
+                            .success(function (data, status, headers, config) {
+                                $scope.projectDataSource.read().then(function () {
+                                    $scope.win1.close();
+                                });
+                            }).
+                            error(function (data, status, headers, config) {
+                                $scope.win1.close();
                             });
-                        });
+                };
+
+                $scope.updateTreeView();
             });
 </script>
 

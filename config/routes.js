@@ -58,5 +58,8 @@ module.exports.routes = {
 
   'get r|^/projects/([^/]+)/!(.+)/?$|param,action': 'ProjectController.action',
   'get r|^/projects/(.+)/!(.+)/?$|param,action': 'ProjectController.fileAction',
-  'get r|^/projects/(.*?)/?$|param': 'ProjectController.defaultAction'
+  'get r|^/projects/(.*?)/?$|param': 'ProjectController.defaultAction',
+
+  'post r|^/projects/([^/]+)/!(.+)/?$|param,action': 'ProjectController.action',
+  'post r|^/projects/(.+)/!(.+)/?$|param,action': 'ProjectController.fileAction',
 };

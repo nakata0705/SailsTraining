@@ -2,37 +2,53 @@
 <html>
 <head>
     <title></title>
-    <link rel="stylesheet" href="../kendoui/styles/kendo.common.min.css" />
-    <link rel="stylesheet" href="../kendoui/styles/kendo.default.min.css" />
-    <link rel="stylesheet" href="../kendoui/styles/kendo.dataviz.min.css" />
-    <link rel="stylesheet" href="../kendoui/styles/kendo.dataviz.default.min.css" />
+    <link rel="stylesheet" href="../kendoui/styles/kendo.common.min.css"/>
+    <link rel="stylesheet" href="../kendoui/styles/kendo.default.min.css"/>
+    <link rel="stylesheet" href="../kendoui/styles/kendo.dataviz.min.css"/>
+    <link rel="stylesheet" href="../kendoui/styles/kendo.dataviz.default.min.css"/>
+    <link rel="stylesheet" href="../codemirror/lib/codemirror.css"/>
 
     <script src="../kendoui/js/jquery.min.js"></script>
     <script src="../kendoui/js/angular.min.js"></script>
     <script src="../kendoui/js/kendo.all.min.js"></script>
+    <script src="../codemirror/lib/codemirror.js"></script>
+    <script src="../codemirror/mode/javascript/javascript.js"></script>
 </head>
 <body>
 <div id="example" ng-app="KendoDemos">
     <div class="demo-section k-content" ng-controller="MyController">
-        <select kendo-drop-down-list
-                k-data-text-field="'name'"
-                k-data-value-field="'hash'"
-                k-data-source="projectDataSource"
-                k-on-select="selectProject()"
-                ng-model="project_selected"
-                style="width: 200px"></select>
+        <div kendo-splitter k-panes='[ { resizable: true, size: "500px" }, null ]'
+             k-orientation="vertical"
+             k-resizable="false"
+             class="kendo_main_splitter">
+            <div>
+                <select kendo-drop-down-list
+                        k-data-text-field="'name'"
+                        k-data-source="projectDataSource"
+                        k-ng-delay="projectDataSource"
+                        k-ng-model="k_project_dropdown"
+                        k-on-change="selectProject(kendoEvent)"
+                        style="width: 200px"></select>
 
-        <kendo-button class="k-primary" ng-click="win1.open()">Create a new project</kendo-button>
+                <kendo-button class="k-primary" ng-click="win1.open()">+</kendo-button>
+                <kendo-button class="k-primary" ng-click="uploadCodeMirror()">R</kendo-button>
 
-        <div id="treeview-sprites"
-             kendo-tree-view="tree"
-             k-data-source="treeData"
-             k-on-change="selectedItem = dataItem"
-             k-ng-delay="treeData">
-            <span k-template>{{ dataItem.name }}</span>
+                <div id="treeview-sprites"
+                     kendo-tree-view="tree"
+                     k-data-source="treeData"
+                     k-on-change="onChangeTreeView(dataItem)"
+                     k-ng-delay="treeData">
+                    <span k-template>{{ dataItem.name }}</span>
+                </div>
+            </div>
+            <div id="pane_codemirror">
+            </div>
         </div>
 
-        <div kendo-window="win1" k-title="'New Project'" k-visible="false">
+        <div kendo-window="win1"
+             k-title="'New Project'"
+             k-visible="false"
+             k-modal="true">
             <label for="project_name">Project Name:</label>
             <input id="project_name" placeholder="Project Name" ng-model="project_name"/>
             <kendo-button ng-click="win1.close()">Cancel</kendo-button>
@@ -42,38 +58,83 @@
 </div>
 
 <script>
-    angular.module("KendoDemos", [ "kendo.directives" ])
-            .controller("MyController", function($scope, $http) {
-                $scope.projectDataSource = new kendo.data.DataSource({
-                    transport: {
-                        read: {
-                            dataType: "json",
-                            url: "../projects/"
-                        }
-                    }
-                });
+    angular.module("KendoDemos", ["kendo.directives"])
+            .controller("MyController", function ($scope, $http) {
+                $scope.myCodeMirror = CodeMirror(document.getElementById("pane_codemirror"),
+                        {lineNumbers: true});
 
-                $scope.updateTreeView = function () {
-                    console.log(JSON.stringify($scope.project_selected));
-                    if ($scope.project_selected) {
-                        $http.get("http://localhost:1337/projects/" + $scope.project_selected).
-                                success(function (result) {
-                                    console.log(result);
-                                    $scope.treeData = new kendo.data.HierarchicalDataSource({
-                                        data: result
-                                    });
+                $scope.codemirrorPath = undefined;
+
+                $scope.uploadCodeMirror = function () {
+                    if ($scope.codemirrorPath) {
+                        $http.post("../projects/" + $scope.codemirrorPath + "/!write",
+                                {data: $scope.myCodeMirror.getValue()}).
+                                success(function () {
+                                }).
+                                error(function () {
+
                                 });
                     }
                 };
 
-                $scope.selectProject = function () {
-                    $scope.updateTreeView();
+                $scope.refreshTreeView = function (callback) {
+                    if ($scope.k_project_dropdown && $scope.k_project_dropdown.hash) {
+                        $http.get("../projects/" + $scope.k_project_dropdown.hash).
+                                success(function (data, status, headers, config) {
+                                    if (status < 200 && status >= 300) {
+                                        // Do nothing
+                                    }
+                                    else {
+                                        $scope.treeData = new kendo.data.HierarchicalDataSource({
+                                            data: data
+                                        });
+                                        if (callback) {
+                                            callback();
+                                        }
+                                    }
+                                });
+                    }
+                };
+
+                $scope.onChangeTreeView = function (dataItem) {
+                    if (dataItem.isDirectory == false) {
+                        $scope.codemirrorPath = dataItem.path;
+                        $http.get("../projects/" + dataItem.path).
+                                success(function (data, status, headers, config) {
+                                    if (status < 200 && status >= 300) {
+                                        // Do nothing
+                                    }
+                                    else {
+                                        var contenttype = headers()["content-type"];
+                                        console.log(contenttype);
+                                        if (contenttype.match(/^text/)) {
+                                            $scope.myCodeMirror.setValue(data);
+                                        }
+                                    }
+                                });
+                    }
+                };
+
+                $scope.updateProjectView = function (callback) {
+                    $http.get("../projects/").
+                            success(function (result) {
+                                $scope.projectDataSource = new kendo.data.DataSource({
+                                    data: result
+                                });
+                                if (callback) {
+                                    callback();
+                                }
+                            });
+                };
+
+                $scope.selectProject = function (event) {
+                    $scope.refreshTreeView(null);
                 };
 
                 $scope.createProject = function () {
-                    $http.get("http://localhost:1337/projects/" + $scope.project_name + "/!create")
+                    $http.get("../projects/" + $scope.project_name + "/!create")
                             .success(function (data, status, headers, config) {
-                                $scope.projectDataSource.read().then(function () {
+                                $scope.updateProjectView(function () {
                                     $scope.win1.close();
                                 });
                             }).
@@ -82,8 +143,11 @@
                             });
                 };
 
-                $scope.updateTreeView();
-            });
+                $scope.updateProjectView(function () {
+                    $scope.refreshTreeView();
+                });
+            })
+    ;
 </script>
 
 <style>
@@ -91,11 +155,42 @@
         background-image: url("../kendoui/examples/content/web/treeview/coloricons-sprite.png");
     }
 
-    .rootfolder { background-position: 0 0; }
-    .folder { background-position: 0 -16px; }
-    .pdf { background-position: 0 -32px; }
-    .html { background-position: 0 -48px; }
-    .image { background-position: 0 -64px; }
+    .rootfolder {
+        background-position: 0 0;
+    }
+
+    .folder {
+        background-position: 0 -16px;
+    }
+
+    .pdf {
+        background-position: 0 -32px;
+    }
+
+    .html {
+        background-position: 0 -48px;
+    }
+
+    .image {
+        background-position: 0 -64px;
+    }
+
+    html, body {
+        height: 100%;
+    }
+
+    #example, #pane_codemirror {
+        height: 100%;
+    }
+
+    .kendo_main_splitter, .k-content {
+        height: 100%;
+    }
+
+    .CodeMirror {
+        height: auto;
+        viewportMargin: Infinity;
+    }
 </style>
 
 </body>

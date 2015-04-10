@@ -43,7 +43,6 @@ function getFilelist(p, callback) {
             }
             return fs.statSync(file).isFile();
         }).forEach(function (file) {
-            var stat = fs.statSync(file);
             var spriteCssClass = "html";
 
             switch (path.extname(file)) {
@@ -63,8 +62,8 @@ function getFilelist(p, callback) {
             results.push({
                 name: path.basename(file),
                 path: path.relative(sails.config.myconf.projectsroot, file),
-                size: stat.size,
-                spriteCssClass: spriteCssClass
+                spriteCssClass: spriteCssClass,
+                isDirectory: false
             });
             if (!--pending) callback(null, results);
         });
@@ -79,6 +78,7 @@ function defaultActionApi(req, res) {
     console.log({function: "defaultActionApi", param: param});
 
     if (param == undefined) {
+        // No path is specified. Return the list of projects the user has an access.
         Project.find({where: {owner: owner}}).exec(function (err, projects) {
             console.log(projects);
             if (err) {
@@ -89,16 +89,25 @@ function defaultActionApi(req, res) {
         });
     }
     else {
-        var path = sails.config.myconf.projectsroot + "/" + param;
-        getFilelist(path, function (err, results) {
-            if (err) {
-                console.error(err);
-                res.json(500, {error: err});
-            }
-            else {
-                res.json(200, results);
-            }
-        });
+        var target = sails.config.myconf.projectsroot + "/" + param;
+        var stats = fs.statSync(target);
+        if (!stats) {
+            res.json(404, {});
+        }
+        else if (stats.isDirectory()) {
+            getFilelist(target, function (err, results) {
+                if (err) {
+                    console.error(err);
+                    res.json(500, {error: err});
+                }
+                else {
+                    res.json(200, results);
+                }
+            });
+        }
+        else if (stats.isFile()) {
+            res.sendfile(target);
+        }
     }
 
 }
@@ -193,6 +202,7 @@ function fileActionApi(req, res) {
     var action = req.param('action') || req.options.action;
     var param = req.param('param') || req.options.param;
     var user = req.session.passport.user || req.options.user;
+    var data = req.param('data') || req.options.body;
 
     console.log({function: "fileActionApi", action: action, param: param});
 
@@ -232,6 +242,17 @@ function fileActionApi(req, res) {
                     }
                 });
                 break;
+            case "write":
+                console.log("posted data: " + data);
+                fs.writeFile(sails.config.myconf.projectsroot + "/" + param, data, function (err, fd) {
+                    if (err) {
+                        res.json(500, {err: err});
+                    }
+                    else {
+                        res.json(200, {err: null, result: sails.config.myconf.projectsroot + param});
+                    }
+                });
+                break
             default:
                 res.json(500, {err: new Error("E_PROJECT_UNKNOWNACTION_" + action)});
         }
